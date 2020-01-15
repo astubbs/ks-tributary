@@ -1,0 +1,17 @@
+/**
+ * Sample schemas used in sizing test for stability (so main schemas can evolve without breaking sizing tests)
+ */
+@namespace("io.confluent.ps.streams.referenceapp.finance.model.finance.avro.idlmodel.forSizingTests")
+protocol SizingTickers {
+
+  record SizingInstrumentId {
+    string id;
+  }
+
+  record SizingInstrumentTick {
+    SizingInstrumentId id;
+    long bloomberg_timestamp;
+    int price;
+  }
+
+}

@@ -1,0 +1,62 @@
+[
+{
+    "name": "LegacyInstrumentId",
+    "namespace": "io.confluent.ps.streams.referenceapp.finance.model.avro.dontuse.example.only",
+    "type": "record",
+    "fields": [
+    {
+        "name": "id",
+        "type": "string"
+    }
+    ]
+}
+
+,
+{
+    "name": "LegacyInstrumentTick",
+    "namespace": "io.confluent.ps.streams.referenceapp.finance.model.avro.dontuse.example.only",
+    "type": "record",
+    "fields": [
+        { "name": "id", "type": "string" },
+        { "name": "bloomberg_timestamp", "type": "long" },
+        { "name": "price", "type": "int" }
+    ]
+}
+,
+{
+    "name": "LegacySnapshotSetId",
+    "namespace": "io.confluent.ps.streams.referenceapp.finance.model.avro.dontuse.example.only",
+    "type": "record",
+    "fields": [
+    {
+        "name": "id",
+        "type": "string"
+    }
+    ]
+}
+,
+{
+    "name": "LegacySnapshotSetAggregation",
+    "namespace": "io.confluent.ps.streams.referenceapp.finance.model.avro.dontuse.example.only",
+    "type": "record",
+    "fields": [
+        { "name": "id", "type": "LegacySnapshotSetId" },
+        { "name": "instruments", "type": {
+             "type": "map", "keys": "int", "values": "int", "default": []
+         }}
+    ]
+}
+,
+{
+    "name": "LegacySnapshotSetKeys",
+    "namespace": "io.confluent.ps.streams.referenceapp.finance.model.avro.dontuse.example.only",
+    "type": "record",
+    "fields": [
+        { "name": "id", "type": "LegacySnapshotSetId" },
+        { "name": "instruments", "type" : {
+            "type": "array", "items": "LegacyInstrumentId"
+        }}
+    ]
+}
+
+]

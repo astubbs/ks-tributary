@@ -1,0 +1,47 @@
+/**
+ * Capula's Snap Set model definition
+ */
+@namespace("io.confluent.ps.streams.referenceapp.finance.model.avro.idlmodel")
+protocol Tickers {
+
+  record InstrumentId {
+    string id;
+  }
+
+  record InstrumentTick {
+    InstrumentId id;
+    long bloomberg_timestamp;
+    string price; // should be string for accuracy - converts to BigDecimal
+    string currencyCode; // = "GBP"; // default to British pounds
+//    decimal(9,2) decimalTest;
+  }
+
+  record SnapshotSetId {
+    string id;
+  }
+
+  record SnapshotSetKeys {
+    SnapshotSetId id;
+    array<InstrumentId> instruments = [];
+  }
+
+// AVRO must use Strings as keys
+// https://stackoverflow.com/questions/59107844/possible-to-use-complex-object-types-as-keys-in-maps-in-avro
+  record SnapshotSetAggregation {
+    SnapshotSetId id;
+  // TODO optinally replace int with InstrumentTick - that way you also get to keep the tick time
+    map<string> instruments = [];
+  }
+
+// used for config storage to map keys to the snap sets they're used in
+  record InstrumentsToSnapshotSets {
+    InstrumentId id;
+    array<SnapshotSetId> snapSets = [];
+  }
+
+  record HighLow {
+    InstrumentTick high = null;
+    InstrumentTick low = null;
+  }
+
+}
