@@ -42,6 +42,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.version}</version>
+                <configuration>
+                    <excludes>
+                        <!-- <exclude>**/*integration*/**/*.java</exclude> too aggressive? -->
+                        <exclude>**/integrationTests/**/*.java</exclude>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -52,10 +59,17 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                        <configuration>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <includes>
+                        <!-- using filename matching -->
+                        <include>**/integrationTests/**/*.java</include>
+                    </includes>
+                    <!-- Example of selection of Categories or Tags:-->
+                    <!-- <groups>integration</groups>-->
+                    <!-- <groups>io.confluent.ps.streams.referenceapp.finance.integrationTests.utils.IntegrationTest</groups>-->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
