@@ -1,0 +1,24 @@
+language: java
+jdk:
+  - openjdk11
+
+sudo: required
+services:
+  - docker
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-Linux-x86_64 > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+# Weirdly have to run maven clean, or Dagger complains: "Could not generate unknown file: Attempt to recreate a file for type" for all modules, components. Doesn't happen in Intellij.
+script: mvn clean verify
