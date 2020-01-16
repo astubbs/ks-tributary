@@ -24,7 +24,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install openjdk-11-jre openjdk-11-jdk --fix-missing
-            echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> /etc/environment
+            sudo echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> /etc/environment
             source /etc/environment
       - checkout
 
