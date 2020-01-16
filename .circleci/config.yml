@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     # Use "machine" instead of e.g. "docker" for better/faster results
-    machine: true
+    machine:
       image: circleci/openjdk:11
 
     working_directory: ~/repo
