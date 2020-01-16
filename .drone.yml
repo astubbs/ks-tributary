@@ -1,0 +1,32 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: build
+  image: maven:3.6.3-jdk-11-slim
+  commands:
+    # turn off ITs until testcontainers works in drone
+    - mvn test -DskipITs
+
+#pipeline:
+#  - name: build
+#    build:
+#      image: quay.io/testcontainers/dind-drone-plugin
+#      build_image: maven:3.6.3-jdk-11-slim
+##      build_image: openjdk:8-jdk-alpine
+#      # This specifies the command that should be executed to perform build, test and integration tests. Not to be confused with Drone's `command`:
+#      cmd: mvn test
+#      # Not mandatory, but enables pre-fetching of images in parallel with the build, so may save time:
+#      # prefetch_images: // prefetch test containers here to save time
+#      #  - "redis:4.0.6"
+#      #  - "confluentinc/cp-kafka:5.3.1"
+
+# https://github.com/testcontainers/dind-drone-plugin
+# example https://github.com/testcontainers/dind-drone-plugin/blob/master/.drone.example.yml
+#pipeline:
+#  build:
+#    image: quay.io/testcontainers/dind-drone-plugin
+#    build_image: openjdk:8-jdk
+#    cmd: java -v
