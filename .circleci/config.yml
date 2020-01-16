@@ -19,6 +19,12 @@ jobs:
       GRAALVM_HOME: /home/circleci/repo/.graalvm
 
     steps:
+      - run:
+          name: install java 11
+          command: |
+            sudo apt-get install openjdk-11-jre openjdk-11-jdk
+            echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> /etc/environment
+            source /etc/environment
       - checkout
 
       # Download and cache dependencies
