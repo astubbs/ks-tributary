@@ -1,0 +1,69 @@
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
+jobs:
+  build:
+    # Use "machine" instead of docker, as CCI doesnt' support DiD for testcontainers
+    machine:
+      # available machine images https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+      image: circleci/classic:edge
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx6400m
+      # Set the GRAALVM_HOME env variable to the location where we will be installing GraalVM
+      GRAALVM_HOME: /home/circleci/repo/.graalvm
+
+    steps:
+      - run:
+          name: install java 11
+          command: |
+            sudo apt-get update
+            sudo apt-get install openjdk-11-jre openjdk-11-jdk --fix-missing
+            sudo update-alternatives --display java
+            sudo update-alternatives --auto java
+            sudo update-alternatives --display java
+            # sudo update-alternatives --config java
+            java --version
+            # echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> ~/.profile
+            # source ~/.profile
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+            export PATH=$PATH:$JAVA_HOME/bin
+            echo $JAVA_HOME
+
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            sudo update-alternatives --auto java
+            java -version
+            mvn -version
+            which java
+            which javac
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+            mvn -version
+            mvn verify
+      - store_test_results: # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard.
+            # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+                path: target/surefire-reports
