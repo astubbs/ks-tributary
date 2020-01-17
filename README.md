@@ -17,6 +17,11 @@ CodeCov.io:
 
 [![codecov](https://codecov.io/gh/astubbs/ks-tributary/branch/master/graph/badge.svg)](https://codecov.io/gh/astubbs/ks-tributary)
 
+Coveralls.io:
+
+[![Coverage Status](https://coveralls.io/repos/github/astubbs/ks-tributary/badge.svg)](https://coveralls.io/github/astubbs/ks-tributary)
+
+
 # KS-Tributary; A Kafka Streams Reference App
 
 Realistic implementation of a full real Kafka Streams application and stream processing logic.
