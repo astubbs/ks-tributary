@@ -161,3 +161,6 @@ https://www.conventionalcommits.org/en/v1.0.0/
 [fork]: https://help.github.com/articles/fork-a-repo/
 [version-badge]: https://img.shields.io/badge/version-1.1.0-blue.svg
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+
+[changelog]: ./CHANGELOG.md
+[changelog-badge]: https://img.shields.io/badge/changelog-Keep%20a%20Changelog%20v1.1.0-%23E05735
