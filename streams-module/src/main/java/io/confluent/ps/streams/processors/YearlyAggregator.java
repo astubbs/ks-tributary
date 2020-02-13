@@ -74,7 +74,6 @@ public class YearlyAggregator<K, V, AV> implements ValueTransformerWithKey<K, V,
 
   @Override
   public void close() {
-    this.stateStore.close();
   }
 
   /**
