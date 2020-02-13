@@ -1,10 +1,5 @@
 - Badges
 
-[![Keep a Changelog v1.1.0 badge][changelog-badge]][changelog]
-
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-
-=======
  [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 - Build
