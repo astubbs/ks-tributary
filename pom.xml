@@ -12,6 +12,7 @@
 
     <modules>
         <module>streams-module</module>
+        <module>streams-main-dagger</module>
     </modules>
 
     <properties>
