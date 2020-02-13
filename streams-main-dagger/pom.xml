@@ -2,22 +2,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>ks-tributary-parent</artifactId>
         <groupId>io.confluent.ps.ks-tributary</groupId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
-    
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>streams-main-dagger</artifactId>
 
     <dependencies>
         <!-- modules -->
         <dependency>
-            <artifactId>ks-tributary-parent</artifactId>
+            <artifactId>streams-module</artifactId>
             <groupId>io.confluent.ps.ks-tributary</groupId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- test modules -->
+        <dependency>
+            <artifactId>streams-module</artifactId>
+            <groupId>io.confluent.ps.ks-tributary</groupId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
 
         <!-- compile -->
@@ -25,12 +33,6 @@
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
             <version>${dagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent.ps.ks-tributary</groupId>
-            <artifactId>streams-module</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- test -->
@@ -43,6 +45,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- use temporarily until AK 2.4 is released -->
+            <groupId>com.github.jukkakarvanen</groupId>
+            <artifactId>kafka-streams-test-topics</artifactId>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
 

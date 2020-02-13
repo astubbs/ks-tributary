@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PrecomputedSnapshotSetTests extends DaggerTestBase {
+public class PrecomputedSnapshotSetTests extends TestBase {
 
   @Inject
   protected TestData td;

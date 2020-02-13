@@ -29,7 +29,7 @@ import static java.time.Duration.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class LatestValueAndOutputStreamTests extends DaggerTestBase {
+public class LatestValueAndOutputStreamTests extends TestBase {
 
   @Inject
   LatestInstrumentWindowsService instrumentService;

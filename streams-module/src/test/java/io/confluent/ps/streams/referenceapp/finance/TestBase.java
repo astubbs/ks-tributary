@@ -21,6 +21,9 @@ public class TestBase extends GuiceInjectedTestBase {
   protected TestDataDriver tdd;
 
   @Inject
+  protected TestData td;
+
+  @Inject
   Lazy<TopologyTestDriver> testDriver;
 
   @BeforeEach

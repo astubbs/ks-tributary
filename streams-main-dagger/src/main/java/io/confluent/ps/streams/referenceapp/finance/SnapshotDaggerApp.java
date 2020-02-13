@@ -20,7 +20,7 @@ import java.util.Properties;
 public class SnapshotDaggerApp {
 
   public static void main(String[] args) {
-    SnapshotAppComp snapshotAppComp = DaggerSnapshotApp_SnapshotAppComp.create();
+    SnapshotAppComp snapshotAppComp = DaggerSnapshotDaggerApp_SnapshotAppComp.create();
     SnapshotAppKafkaStream maker = snapshotAppComp.maker();
 
     log.info(snapshotAppComp.toString());

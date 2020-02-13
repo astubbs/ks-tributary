@@ -6,10 +6,12 @@ import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceI
 import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceSharded;
 import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceSimple;
 import io.confluent.ps.streams.referenceapp.finance.modules.SnapshotModule;
+import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.mockito.Mockito;
 
 import javax.inject.Singleton;
 import java.nio.file.Path;
