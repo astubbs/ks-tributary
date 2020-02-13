@@ -1,13 +1,13 @@
-package io.confluent.ps.xenzone;
+package io.confluent.ps.streams.referenceapp.chat;
 
 import com.github.jukkakarvanen.kafka.streams.test.TestInputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import com.google.common.collect.Lists;
 import io.confluent.kafka.streams.serdes.avro.MySpecificAvroSerde;
+import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
 import io.confluent.ps.streams.referenceapp.InjectedTestBase;
 import io.confluent.ps.streams.referenceapp.TestDataDriver;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
-import io.confluent.ps.xenzone.model.GoalEventWrapped;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -19,12 +19,11 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import java.util.ArrayList;
 
-import static io.confluent.ps.xenzone.XenzoneKpiTopology.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @Slf4j
-public class XenzoneNhsKpiTest extends InjectedTestBase {
+public class ChatKpiTest extends InjectedTestBase {
 
   @Inject
   TestDataDriver tdd;
@@ -42,7 +41,7 @@ public class XenzoneNhsKpiTest extends InjectedTestBase {
     MySpecificAvroSerde<GoalId, GoalId> keySerde = ksutils.<GoalId, GoalId>serdeForMy(true);
     MySpecificAvroSerde<GoalEventWrapped, GoalEvent> valueSerde = ksutils.<GoalEvent, GoalEventWrapped>serdeForMy(false);
 
-    goalsTopic = td.createInputTopic(GOAL_EVENTS_TOPIC, keySerde.serializer(), valueSerde.serializer());
+    goalsTopic = td.createInputTopic(ChatKpiTopology.GOAL_EVENTS_TOPIC, keySerde.serializer(), valueSerde.serializer());
   }
 
   @Test
@@ -60,10 +59,10 @@ public class XenzoneNhsKpiTest extends InjectedTestBase {
     goalsTopic.pipeInput(gIda, gEvent);
     goalsTopic.pipeInput(gIdb, gEvent2);
 
-    KeyValueStore<ServiceUserId, Long> progressed = td.getKeyValueStore(PROGRESSED_COUNT_STORE);
-    KeyValueStore<ServiceUserId, Long> veryProgressed = td.getKeyValueStore(VERY_PROGRESSED_COUNT_STORE);
-    KeyValueStore<Object, Object> progressedGoalCounts = td.getKeyValueStore(PROGRESSED_GOALS_STORE);
-    KeyValueStore<ServiceUserId, Long> progressedCountPerUsers = td.getKeyValueStore(GOALS_PROGRESSED_PER_USER_T2);
+    KeyValueStore<ServiceUserId, Long> progressed = td.getKeyValueStore(ChatKpiTopology.PROGRESSED_COUNT_STORE);
+    KeyValueStore<ServiceUserId, Long> veryProgressed = td.getKeyValueStore(ChatKpiTopology.VERY_PROGRESSED_COUNT_STORE);
+    KeyValueStore<Object, Object> progressedGoalCounts = td.getKeyValueStore(ChatKpiTopology.PROGRESSED_GOALS_STORE);
+    KeyValueStore<ServiceUserId, Long> progressedCountPerUsers = td.getKeyValueStore(ChatKpiTopology.GOALS_PROGRESSED_PER_USER_T2);
 
 
     ArrayList<KeyValue<ServiceUserId, Long>> all = Lists.newArrayList(progressed.all());

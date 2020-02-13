@@ -1,4 +1,4 @@
-package io.confluent.ps.xenzone.model;
+package io.confluent.ps.streams.referenceapp.chat.model;
 
 import org.joda.time.DateTime;
 

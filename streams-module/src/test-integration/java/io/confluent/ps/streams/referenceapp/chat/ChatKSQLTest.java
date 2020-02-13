@@ -1,4 +1,4 @@
-package io.confluent.ps.xenzone;
+package io.confluent.ps.streams.referenceapp.chat;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import static io.confluent.ksql.test.tools.KsqlTestingTool.main;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class KSQLTest {
+public class ChatKSQLTest {
 
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
   private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
