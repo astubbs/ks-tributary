@@ -3,6 +3,7 @@ package io.confluent.kafka.streams.serdes.avro;
 
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import io.confluent.kafka.streams.serdes.avro.WrappingSpecificAvroDeserializer;
+import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
 import io.confluent.ps.streams.referenceapp.finance.model.HighLowBD;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
@@ -23,7 +24,7 @@ public class WrappingSpecificAvroSerde<T extends R, R extends SpecificRecord> im
 
   public WrappingSpecificAvroSerde() {
     // TODO configure dynamically
-    List<Class> aClass = List.of(InstrumentTickBD.class, HighLowBD.class);
+    List<Class> aClass = List.of(InstrumentTickBD.class, HighLowBD.class, GoalEventWrapped.class);
 
     SpecificAvroSerializer<T> tSpecificAvroSerializer = new SpecificAvroSerializer<>();
     WrappingSpecificAvroDeserializer<R, T> rtWrappingSpecificAvroDeserializer = new WrappingSpecificAvroDeserializer<>(aClass);

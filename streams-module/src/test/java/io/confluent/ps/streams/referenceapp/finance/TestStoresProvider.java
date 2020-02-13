@@ -1,6 +1,7 @@
 package io.confluent.ps.streams.referenceapp.finance;
 
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
+import com.google.inject.Injector;
 import io.confluent.ps.streams.referenceapp.finance.model.avro.idlmodel.*;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
 import dagger.Lazy;
@@ -21,16 +22,20 @@ import java.util.Objects;
 @Slf4j
 public class TestStoresProvider implements SnapshotStoreProvider {
 
-  Lazy<TopologyTestDriver> injector;
+//  Lazy<TopologyTestDriver> lazyTTD;
+  Injector injector;
 
   @Inject
-  public TestStoresProvider(Lazy<TopologyTestDriver> injector) {
+//  public TestStoresProvider(Lazy<TopologyTestDriver> injector) {
+//    this.injector = injector;
+//  }
+  public TestStoresProvider(Injector injector) {
     this.injector = injector;
   }
 
   private TopologyTestDriver getTestDriver() {
-    TopologyTestDriver topologyTestDriverProvider = injector.get();
-//    return topologyTestDriverProvider.getInstance(TopologyTestDriver.class);
+//    TopologyTestDriver topologyTestDriverProvider = lazyTTD.get();
+    TopologyTestDriver topologyTestDriverProvider = injector.getInstance(TopologyTestDriver.class);
     return topologyTestDriverProvider;
 //    return injector;
   }

@@ -1,4 +1,4 @@
-package io.confluent.ps.streams.referenceapp.processors;
+package io.confluent.ps.streams.processors;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Aggregator;

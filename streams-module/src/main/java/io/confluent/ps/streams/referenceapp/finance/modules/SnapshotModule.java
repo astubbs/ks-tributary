@@ -2,6 +2,7 @@ package io.confluent.ps.streams.referenceapp.finance.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import io.confluent.ps.streams.referenceapp.chat.ChatKpiTopology;
 import io.confluent.ps.streams.referenceapp.finance.model.avro.idlmodel.InstrumentId;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
@@ -51,16 +52,19 @@ public class SnapshotModule extends AbstractModule {
     bind(SnapshotTopologyPrecomputerSimple.class).in(SINGLETON);
     bind(SnapshotTopologyPrecomputerSharded.class).in(SINGLETON);
     bind(SnapshotTopologyHighLowBarWindows.class).in(SINGLETON);
+    bind(ChatKpiTopology.class).in(SINGLETON);
   }
 
   // depends on all topologies having been constructed
+  // TODO remove, this smells
   @Provides
   Topology builder(StreamsBuilder builder,
                    SnapshotSetsConfigTopology depOne,
                    SnapshotTopologyLatestWindows depTwo,
                    SnapshotTopologyPrecomputerSimple depThree,
                    SnapshotTopologyPrecomputerSharded depFour,
-                   SnapshotTopologyHighLowBarWindows depFive
+                   SnapshotTopologyHighLowBarWindows depFive,
+                   ChatKpiTopology depSix
   ) {
     return builder.build();
   }
