@@ -1,4 +1,4 @@
-@namespace("io.confluent.ps.xenzone.model")
+@namespace("io.confluent.ps.streams.referenceapp.chat.model")
 protocol Xenzone {
 
   record GoalId {

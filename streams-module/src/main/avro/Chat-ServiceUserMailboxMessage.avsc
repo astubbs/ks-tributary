@@ -1,5 +1,5 @@
 {
-  "namespace": "io.confluent.ps.xenzone.model.connect",
+  "namespace": "io.confluent.ps.streams.referenceapp.chat.model.connect",
   "connect.name": "test_service_user_mailbox_messages",
   "fields": [
     {

@@ -2,9 +2,9 @@ package io.confluent.ps.streams.referenceapp.chat;
 
 import io.confluent.ksql.util.Pair;
 import io.confluent.ps.streams.processors.YearlyAggregator;
+import io.confluent.ps.streams.referenceapp.chat.model.*;
+import io.confluent.ps.streams.referenceapp.chat.model.connect.test_service_user;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
-import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
-import io.confluent.ps.xenzone.model.connect.test_service_user;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KGroupedStream;
@@ -75,10 +75,8 @@ public class ChatKpiTopology {
 
     KStream<ServiceUserId, MucRoom> chatStream = mucRoomsStream(builder).selectKey((key, value) -> value.getParticipantOne());
     KStream<ServiceUserId, MucRoom> longChats = chatStream.filter((userId, chat) -> {
-      Period.between();
-
-      boolean b = chat.getEndedAt().getMillis() - chat.getStartedAt().getMillis() < ofMinutes(8).toMillis();
-      chat.getEndedAt()
+      boolean chatLastedLongerThan = chat.getEndedAt().getMillis() - chat.getStartedAt().getMillis() < ofMinutes(8).toMillis();
+      return chatLastedLongerThan;
     });
 
     KStream<ServiceUserId, Pair<MucRoom, test_service_user>> longChatsAndUserProfiles = longChats.join(serviceUserIdServiceUserProfileKStream, Pair::of);

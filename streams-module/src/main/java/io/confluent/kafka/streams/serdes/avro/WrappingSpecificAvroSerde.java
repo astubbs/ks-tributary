@@ -1,5 +1,8 @@
+// Must be in this package as the exnteded class is package private
 package io.confluent.kafka.streams.serdes.avro;
 
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
+import io.confluent.kafka.streams.serdes.avro.WrappingSpecificAvroDeserializer;
 import io.confluent.ps.streams.referenceapp.finance.model.HighLowBD;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;

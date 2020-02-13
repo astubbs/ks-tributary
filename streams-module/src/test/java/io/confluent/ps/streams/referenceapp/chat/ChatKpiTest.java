@@ -3,10 +3,10 @@ package io.confluent.ps.streams.referenceapp.chat;
 import com.github.jukkakarvanen.kafka.streams.test.TestInputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import com.google.common.collect.Lists;
-import io.confluent.kafka.streams.serdes.avro.MySpecificAvroSerde;
-import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
-import io.confluent.ps.streams.referenceapp.InjectedTestBase;
-import io.confluent.ps.streams.referenceapp.TestDataDriver;
+import io.confluent.kafka.streams.serdes.avro.WrappingSpecificAvroSerde;
+import io.confluent.ps.streams.referenceapp.chat.model.*;
+import io.confluent.ps.streams.referenceapp.finance.TestDataDriver;
+import io.confluent.ps.streams.referenceapp.tests.GuiceInjectedTestBase;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @Slf4j
-public class ChatKpiTest extends InjectedTestBase {
+public class ChatKpiTest extends GuiceInjectedTestBase {
 
   @Inject
   TestDataDriver tdd;
@@ -38,8 +38,8 @@ public class ChatKpiTest extends InjectedTestBase {
 
   @BeforeEach
   void setup() {
-    MySpecificAvroSerde<GoalId, GoalId> keySerde = ksutils.<GoalId, GoalId>serdeForMy(true);
-    MySpecificAvroSerde<GoalEventWrapped, GoalEvent> valueSerde = ksutils.<GoalEvent, GoalEventWrapped>serdeForMy(false);
+    WrappingSpecificAvroSerde<GoalId, GoalId> keySerde = ksutils.<GoalId, GoalId>wrappingSerdeFor(true);
+    WrappingSpecificAvroSerde<GoalEventWrapped, GoalEvent> valueSerde = ksutils.<GoalEvent, GoalEventWrapped>wrappingSerdeFor(false);
 
     goalsTopic = td.createInputTopic(ChatKpiTopology.GOAL_EVENTS_TOPIC, keySerde.serializer(), valueSerde.serializer());
   }

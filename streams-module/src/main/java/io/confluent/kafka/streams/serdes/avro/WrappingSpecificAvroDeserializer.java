@@ -1,3 +1,4 @@
+// Must be in this package as the exnteded class is package private
 package io.confluent.kafka.streams.serdes.avro;
 
 import com.google.common.collect.Lists;
