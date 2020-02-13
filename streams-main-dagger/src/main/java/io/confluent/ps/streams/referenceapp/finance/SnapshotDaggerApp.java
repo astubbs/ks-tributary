@@ -1,6 +1,5 @@
 package io.confluent.ps.streams.referenceapp.finance;
 
-import io.confluent.ps.streams.referenceapp.finance.DaggerSnapshotApp_SnapshotAppComp;
 import io.confluent.ps.streams.referenceapp.finance.dagger.KSBindingsModule;
 import io.confluent.ps.streams.referenceapp.finance.dagger.SnapshotDaggerModule;
 import io.confluent.ps.streams.referenceapp.finance.dagger.StoreProdiverModule;
@@ -18,7 +17,7 @@ import java.util.Properties;
  * Main entry class for app, uses Dagger static injection.
  */
 @Slf4j
-public class SnapshotApp {
+public class SnapshotDaggerApp {
 
   public static void main(String[] args) {
     SnapshotAppComp snapshotAppComp = DaggerSnapshotApp_SnapshotAppComp.create();

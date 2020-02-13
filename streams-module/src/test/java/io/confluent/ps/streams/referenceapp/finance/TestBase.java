@@ -1,7 +1,6 @@
 package io.confluent.ps.streams.referenceapp.finance;
 
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
-import io.confluent.ps.streams.referenceapp.finance.dagger.SnapshotDaggerModule;
 import dagger.Lazy;
 import io.confluent.ps.streams.referenceapp.tests.GuiceInjectedTestBase;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +25,6 @@ public class TestBase extends GuiceInjectedTestBase {
 
   @BeforeEach
   public void setup() {
-    SnapshotDaggerModule snapshotDaggerModule = new SnapshotDaggerModule();
-
     // init services
     Map<String, StateStore> allStateStores = testDriver.get().getAllStateStores();
     assertThat(allStateStores.entrySet()).as("all state stores are actually pressent").hasSize(8);

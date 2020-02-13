@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class ConfigServiceTests extends TestBase {
+public class ConfigServiceTests extends DaggerTestBase {
 
   @Inject
   protected SnapshotSetsConfigService configService;

@@ -26,7 +26,7 @@ import static java.time.Duration.ofHours;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class PublicInterfaceTests extends TestBase {
+public class PublicInterfaceTests extends DaggerTestBase {
 
   @Inject
   protected LatestInstrumentWindowsService instrumentService;

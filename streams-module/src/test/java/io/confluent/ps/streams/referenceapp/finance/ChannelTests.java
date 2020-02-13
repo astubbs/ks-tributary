@@ -29,7 +29,7 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class ChannelTests extends TestBase {
+public class ChannelTests extends DaggerTestBase {
 
   @Inject
   protected TestData td;

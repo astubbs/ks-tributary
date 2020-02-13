@@ -1,6 +1,6 @@
 package io.confluent.ps.streams.referenceapp.finance.dagger;
 
-import io.confluent.ps.streams.referenceapp.finance.SnapshotApp;
+import io.confluent.ps.streams.referenceapp.finance.SnapshotDaggerApp;
 import io.confluent.ps.streams.referenceapp.finance.TestData;
 import io.confluent.ps.streams.referenceapp.finance.TestDataDriver;
 import io.confluent.ps.streams.referenceapp.finance.services.LatestInstrumentWindowsService;
@@ -15,7 +15,7 @@ public class DaggerSnapAppTestRoot {
 
   @Singleton
   @Component(modules = {DaggerSnapAppTestModule.class, TestStoreProviderModule.class, SnapshotDaggerModule.class})
-  public interface SnapshotAppCompTestComponent extends SnapshotApp.SnapshotAppComp {
+  public interface SnapshotAppCompTestComponent extends SnapshotDaggerApp.SnapshotAppComp {
     LatestInstrumentWindowsService latestService();
     TestData testData();
     TestDataDriver testDataDriver();
