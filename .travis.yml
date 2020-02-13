@@ -22,3 +22,6 @@ before_install:
 
 # Weirdly have to run maven clean, or Dagger complains: "Could not generate unknown file: Attempt to recreate a file for type" for all modules, components. Doesn't happen in Intellij.
 script: mvn clean verify
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
