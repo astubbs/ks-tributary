@@ -11,5 +11,49 @@
 
     <artifactId>streams-main-dagger</artifactId>
 
+    <dependencies>
+        <!-- modules -->
+        <dependency>
+            <artifactId>ks-tributary-parent</artifactId>
+            <groupId>io.confluent.ps.ks-tributary</groupId>
+            <version>${project.version}</version>
+        </dependency>
 
+        <!-- compile -->
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>${dagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent.ps.ks-tributary</groupId>
+            <artifactId>streams-module</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.dagger</groupId>
+                            <artifactId>dagger-compiler</artifactId>
+                            <version>${dagger.version}</version>
+                        </path>
+                        <!-- https://stackoverflow.com/questions/50361786/using-dagger2-with-lombok-->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

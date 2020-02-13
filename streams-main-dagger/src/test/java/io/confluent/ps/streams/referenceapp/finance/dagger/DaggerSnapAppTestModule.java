@@ -6,7 +6,6 @@ import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceI
 import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceSharded;
 import io.confluent.ps.streams.referenceapp.finance.channels.MockChannelServiceSimple;
 import io.confluent.ps.streams.referenceapp.finance.modules.SnapshotModule;
-import dagger.Module;
 import dagger.Provides;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.StreamsConfig;
@@ -42,26 +41,26 @@ public class DaggerSnapAppTestModule {
   @Singleton
   @Provides
   MockChannelServiceSharded getShardChannel(TestData td) {
-    MockChannelServiceSharded mockChannelService = mock(MockChannelServiceSharded.class);
-    when(mockChannelService.findChannelSubscriptions(td.snapSetConfigOne.getId())).thenReturn(List.of(td.channelOneSharded, td.channelTwoSharded));
-    when(mockChannelService.findChannelSubscriptions(td.snapSetConfigTwo.getId())).thenReturn(List.of(td.channelTwoSharded, td.channelFiveDataArrivesAfterWindowClose));
+    MockChannelServiceSharded mockChannelService = Mockito.mock(MockChannelServiceSharded.class);
+    Mockito.when(mockChannelService.findChannelSubscriptions(td.snapSetConfigOne.getId())).thenReturn(List.of(td.channelOneSharded, td.channelTwoSharded));
+    Mockito.when(mockChannelService.findChannelSubscriptions(td.snapSetConfigTwo.getId())).thenReturn(List.of(td.channelTwoSharded, td.channelFiveDataArrivesAfterWindowClose));
     return mockChannelService;
   }
 
   @Singleton
   @Provides
   MockChannelServiceSimple getSimpleChannel(TestData td) {
-    MockChannelServiceSimple mockChannelService = mock(MockChannelServiceSimple.class);
-    when(mockChannelService.findChannelSubscriptions(td.snapSetConfigOne.getId())).thenReturn(List.of(td.channelOneSimple, td.channelTwoSimple));
-    when(mockChannelService.findChannelSubscriptions(td.snapSetConfigTwo.getId())).thenReturn(List.of(td.channelTwoSimple, td.channelFiveDataArrivesAfterWindowClose));
+    MockChannelServiceSimple mockChannelService = Mockito.mock(MockChannelServiceSimple.class);
+    Mockito.when(mockChannelService.findChannelSubscriptions(td.snapSetConfigOne.getId())).thenReturn(List.of(td.channelOneSimple, td.channelTwoSimple));
+    Mockito.when(mockChannelService.findChannelSubscriptions(td.snapSetConfigTwo.getId())).thenReturn(List.of(td.channelTwoSimple, td.channelFiveDataArrivesAfterWindowClose));
     return mockChannelService;
   }
 
   @Singleton
   @Provides
   MockChannelServiceIndividual getIndividualChannel(TestData td) {
-    MockChannelServiceIndividual mockChannelService = mock(MockChannelServiceIndividual.class);
-    when(mockChannelService.findExplicitChannelSubscriptionsForKey(td.googleInstrumentThreeId)).thenReturn(List.of(td.channelThreeIndividualKey, td.channelFiveDataArrivesAfterWindowClose));
+    MockChannelServiceIndividual mockChannelService = Mockito.mock(MockChannelServiceIndividual.class);
+    Mockito.when(mockChannelService.findExplicitChannelSubscriptionsForKey(td.googleInstrumentThreeId)).thenReturn(List.of(td.channelThreeIndividualKey, td.channelFiveDataArrivesAfterWindowClose));
     return mockChannelService;
   }
 

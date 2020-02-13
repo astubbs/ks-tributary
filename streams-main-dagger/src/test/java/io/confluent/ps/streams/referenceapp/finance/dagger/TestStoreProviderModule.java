@@ -3,7 +3,6 @@ package io.confluent.ps.streams.referenceapp.finance.dagger;
 import io.confluent.ps.streams.referenceapp.finance.TestStoresProvider;
 import io.confluent.ps.streams.referenceapp.finance.topologies.SnapshotStoreProvider;
 import dagger.Binds;
-import dagger.Module;
 
 @Module
 public abstract class TestStoreProviderModule {
