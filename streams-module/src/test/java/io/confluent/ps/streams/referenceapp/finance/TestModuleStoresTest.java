@@ -34,7 +34,7 @@ public class TestModuleStoresTest {
     injector.injectMembers(this);
 
     Map<String, StateStore> allStateStores = injector.getInstance(TopologyTestDriver.class).getAllStateStores();
-    assertThat(allStateStores.entrySet()).as("all state stores are actually pressent").hasSize(8);
+    assertThat(allStateStores.entrySet()).as("all state stores are actually present").hasSizeGreaterThan(8);
 
     assertThat(stores.configStore()).isNotNull();
     assertThat(stores.inverseConfigStore()).isNotNull();

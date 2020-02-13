@@ -30,7 +30,7 @@ public class TestBase extends GuiceInjectedTestBase {
   public void setup() {
     // init services
     Map<String, StateStore> allStateStores = testDriver.get().getAllStateStores();
-    assertThat(allStateStores.entrySet()).as("all state stores are actually pressent").hasSize(8);
+    assertThat(allStateStores.entrySet()).as("all state stores are actually present").hasSizeGreaterThan(8);
 
     // config
     tdd.insertConfigsData();
