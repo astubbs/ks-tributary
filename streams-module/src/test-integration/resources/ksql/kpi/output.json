@@ -1,0 +1,18 @@
+{
+  "outputs": [
+          {"topic": "PROGRESSED_GOALS", "timestamp": 1, "value": {"goal_id": "g1", "serviceUserId": "su1", "initialScore": 0, "score": 2, "USER_GOAL_ID":"su1g1"}, "key": "g1"},
+          {"topic": "PROGRESSED_GOALS", "timestamp": 2, "value": {"goal_id": "g1", "serviceUserId": "su1", "initialScore": 0, "score": 3, "USER_GOAL_ID":"su1g1"}, "key": "g1"},
+          {"topic": "PROGRESSED_GOALS", "timestamp": 5, "value": {"goal_id": "g3", "serviceUserId": "su1", "initialScore": 0, "score": 5, "USER_GOAL_ID":"su1g3"}, "key": "g3"},
+
+          {"topic": "PROGRESSED_GOALS_COUNT", "timestamp": 1, "value": {"progression_events_count": 1}, "key": "g1"},
+          {"topic": "PROGRESSED_GOALS_COUNT", "timestamp": 2, "value": {"progression_events_count": 2}, "key": "g1"},
+          {"topic": "PROGRESSED_GOALS_COUNT", "timestamp": 5, "value": {"progression_events_count": 1}, "key": "g3"},
+
+          {"topic": "PROGRESSED_GOALS_COUNT_PER_USER", "timestamp": 1, "value": {"PROGRESSION_GOALS_COUNT": 1}, "key": "su1g1"},
+          {"topic": "PROGRESSED_GOALS_COUNT_PER_USER", "timestamp": 2, "value": {"PROGRESSION_GOALS_COUNT": 2}, "key": "su1g1"},
+          {"topic": "PROGRESSED_GOALS_COUNT_PER_USER", "timestamp": 5, "value": {"PROGRESSION_GOALS_COUNT": 1}, "key": "su1g3"},
+
+          {"topic": "SIGNIFICANT_PROGRESSION_EVENTS", "timestamp": 2, "value": {"USER_GOAL_ID":"su1g1", "GOAL_ID":"g1", "SERVICEUSERID":"su1", "SCORE":3, "INITIALSCORE":0}, "key": "g1"},
+          {"topic": "SIGNIFICANT_PROGRESSION_EVENTS", "timestamp": 5, "value": {"USER_GOAL_ID":"su1g3", "GOAL_ID":"g3", "SERVICEUSERID":"su1", "SCORE":5, "INITIALSCORE":0}, "key": "g3"}
+        ]
+}

@@ -1,0 +1,53 @@
+{
+  "namespace": "io.confluent.ps.xenzone.model.connect",
+  "connect.name": "test_service_user_mailbox_messages",
+  "fields": [
+    {
+      "default": null,
+      "name": "id",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "default": null,
+      "name": "application_service_group_id",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "default": null,
+      "name": "started_at",
+      "type": [
+        "null",
+        {
+          "connect.name": "org.apache.kafka.connect.data.Timestamp",
+          "connect.version": 1,
+          "logicalType": "timestamp-millis",
+          "type": "long"
+        }
+      ]
+    },
+    {
+      "default": null,
+      "name": "status",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "default": null,
+      "name": "user_id",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ],
+  "name": "ServiceUserMailboxMessage",
+  "type": "record"
+}

@@ -1,0 +1,12 @@
+{
+  "inputs": [
+          {"topic": "goal-events", "timestamp": 0, "value": {"goal_id": "g1", "serviceUserId": "su1", "initialScore": 0, "score": 0}, "key": "g1"},
+          {"topic": "goal-events", "timestamp": 1, "value": {"goal_id": "g1", "serviceUserId": "su1", "initialScore": 0, "score": 2}, "key": "g1"},
+          {"topic": "goal-events", "timestamp": 2, "value": {"goal_id": "g1", "serviceUserId": "su1", "initialScore": 0, "score": 3}, "key": "g1"},
+
+          {"topic": "goal-events", "timestamp": 3, "value": {"goal_id": "g2", "serviceUserId": "su2", "initialScore": 0, "score": 0}, "key": "g2"},
+
+          {"topic": "goal-events", "timestamp": 4, "value": {"goal_id": "g3", "serviceUserId": "su1", "initialScore": 0, "score": 0}, "key": "g3"},
+          {"topic": "goal-events", "timestamp": 5, "value": {"goal_id": "g3", "serviceUserId": "su1", "initialScore": 0, "score": 5}, "key": "g3"}
+        ]
+}

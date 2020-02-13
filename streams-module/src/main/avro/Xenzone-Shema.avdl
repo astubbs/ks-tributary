@@ -1,0 +1,85 @@
+@namespace("io.confluent.ps.xenzone.model")
+protocol Xenzone {
+
+  record GoalId {
+    string id;
+  }
+
+  record ServiceUserId {
+    string id;
+  }
+
+  enum ReviewedStatus {
+    YES, NO
+  }
+
+  record GoalEvent {
+    GoalId id;
+    string title;
+    int score;
+    int initialScore;
+    timestamp_ms createdAt;
+    ServiceUserId serviceUserId;
+    ReviewedStatus reviewedStatus;
+    int goalProgressionSteps;
+    int significantProgressSurpassedAtStep;
+  }
+
+  record UserAccess {
+    ServiceUserId userId;
+    int accessCount;
+    timestamp_ms accessTime;
+  }
+
+  record ChatMessage {
+    ServiceUserId userId;
+    timestamp_ms accessTime;
+    string message;
+  }
+
+  record TranscriptId {
+    string id;
+  }
+
+  record Transcript {
+    TranscriptId id;
+    array<ChatMessage> messages = [];
+  }
+
+  record MucRoomId {
+    string id;
+  }
+
+  record MucRoom {
+    string id;
+    string application_id;
+    string xmpp_room_id;
+    ServiceUserId participantOne;
+    ServiceUserId participantTwo;
+    timestamp_ms started_at;
+    timestamp_ms ended_at;
+    boolean active;
+  }
+
+  record ServiceUserProfile {
+    string id;
+    string customer_id;
+    timestamp_ms created_at;
+  }
+
+  enum JabberMessageBoxType {
+    mailboxconversation, worker
+  }
+
+  record JabberMessageBox {
+    string id;
+    JabberMessageBoxType mailboxType;
+  }
+
+  record JabberMessage {
+    string messageType;
+    JabberMessageBox to;
+    JabberMessageBox from;
+    timestamp_ms sentAt;
+  }
+}
