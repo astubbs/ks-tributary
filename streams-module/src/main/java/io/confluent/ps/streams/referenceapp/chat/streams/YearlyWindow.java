@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+// TODO delete? not used? doesnt work?
 public class YearlyWindow extends Windows<TimeWindow>  {
 
   private MonthDay startingMonthDay;
