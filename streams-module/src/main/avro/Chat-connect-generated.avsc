@@ -2,7 +2,7 @@
 {
   "type": "record",
   "name": "test_service_user",
-  "namespace": "io.confluent.ps.xenzone.model.connect",
+  "namespace": "io.confluent.ps.streams.referenceapp.chat.model.connect",
   "fields": [
     {
       "name": "id",
@@ -47,7 +47,7 @@
 
 {
   "connect.name": "test_service_user_chats",
-  "namespace": "io.confluent.ps.xenzone.model.connect",
+  "namespace": "io.confluent.ps.streams.referenceapp.chat.model.connect",
   "fields": [
     {
       "default": null,
@@ -114,7 +114,7 @@
 
 {
   "connect.name": "test_service_user_goals",
-  "namespace": "io.confluent.ps.xenzone.model.connect",
+  "namespace": "io.confluent.ps.streams.referenceapp.chat.model.connect",
   "fields": [
     {
       "default": null,

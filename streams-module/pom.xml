@@ -50,8 +50,19 @@
             <groupId>org.javamoney.moneta</groupId>
             <artifactId>moneta-convert-imf</artifactId>
         </dependency>
+        <dependency>
+            <!-- TODO figure out why Joda is required -->
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
+        <!-- for KSQL testing -->
+        <dependency>
+            <groupId>io.confluent.ksql</groupId>
+            <artifactId>ksql-functional-tests</artifactId>
+            <version>${confluent.version}</version>
+        </dependency>
         <!-- TODO remove dagger - only needed for Lazy class which makes tests compatible with both DAgger and Guice. -->
         <dependency>
             <groupId>com.google.dagger</groupId>
