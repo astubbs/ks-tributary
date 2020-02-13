@@ -110,7 +110,7 @@ Disable integration tests
   - Massive skew avoidance techniques
 - Compound key query demonstration / data demoralisation (e.g. Invoice reconstruction from Orders and Order Items)
 - Yearly aggregator by date (think April 5th Financial years)
-  - Normal window computations can only run against fixed size windows (e.g. not calenda dates)
+  - Normal window computations can only run against fixed size windows (e.g. not calendar dates)
   - Extending to also do monthly dates is an easy modification 
 
 ### Software Structure
