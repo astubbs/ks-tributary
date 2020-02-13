@@ -1,4 +1,4 @@
-package io.confluent.ps.xenzone.streams;
+package io.confluent.ps.streams.referenceapp.chat.streams;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.kafka.streams.kstream.Windows;

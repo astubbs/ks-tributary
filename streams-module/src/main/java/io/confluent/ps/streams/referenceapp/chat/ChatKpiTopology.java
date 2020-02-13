@@ -1,9 +1,9 @@
-package io.confluent.ps.xenzone;
+package io.confluent.ps.streams.referenceapp.chat;
 
 import io.confluent.ksql.util.Pair;
 import io.confluent.ps.streams.processors.YearlyAggregator;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
-import io.confluent.ps.xenzone.model.GoalEventWrapped;
+import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
 import io.confluent.ps.xenzone.model.connect.test_service_user;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -24,7 +24,7 @@ import java.util.UUID;
 
 import static java.time.Duration.ofMinutes;
 
-public class XenzoneKpiTopology {
+public class ChatKpiTopology {
 
   public static final String GOAL_EVENTS_TOPIC = "goal-events";
   public static final String PROGRESSED_GOALS_TOPIC = "progressed-goals";
@@ -42,7 +42,7 @@ public class XenzoneKpiTopology {
   private final KSUtils ksutils = new KSUtils();
 
   @Inject
-  public XenzoneKpiTopology(StreamsBuilder builder) {
+  public ChatKpiTopology(StreamsBuilder builder) {
     KTable<ServiceUserId, UserAccess> serviceUserIdUserAccessKStream = usersWithAccessAchieved(builder);
 
     goalsKPI(builder, serviceUserIdUserAccessKStream);
