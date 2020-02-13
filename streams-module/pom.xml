@@ -47,16 +47,17 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.dagger</groupId>
-            <artifactId>dagger</artifactId>
-            <version>${dagger.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.javamoney.moneta</groupId>
             <artifactId>moneta-convert-imf</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
+        <!-- TODO remove dagger - only needed for Lazy class which makes tests compatible with both DAgger and Guice. -->
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>${dagger.version}</version>
+        </dependency>
         <dependency>
             <!-- use temporarily until AK 2.4 is released -->
             <groupId>com.github.jukkakarvanen</groupId>
@@ -223,24 +224,19 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- build tests jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>com.google.dagger</groupId>
-                            <artifactId>dagger-compiler</artifactId>
-                            <version>${dagger.version}</version>
-                        </path>
-                        <!-- https://stackoverflow.com/questions/50361786/using-dagger2-with-lombok-->
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
