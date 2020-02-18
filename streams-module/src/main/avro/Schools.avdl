@@ -1,9 +1,7 @@
 @namespace("io.confluent.ps.streams.referenceapp.schools.model")
 protocol Schools {
 
-
-
-  record SchoolCode {
+  record SchoolId {
     string id;
   }
 
@@ -23,12 +21,6 @@ protocol Schools {
     SchoolId schoolCode;
     string code;
     string name;
-  }
-
-
-
-  record SchoolId {
-    string id;
   }
 
   enum ReviewedStatus {
