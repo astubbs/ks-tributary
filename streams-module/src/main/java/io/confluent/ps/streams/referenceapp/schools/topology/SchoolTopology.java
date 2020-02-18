@@ -1,32 +1,45 @@
 package io.confluent.ps.streams.referenceapp.schools.topology;
 
-import io.confluent.ps.streams.referenceapp.schools.model.SchoolEvent;
-import io.confluent.ps.streams.referenceapp.schools.model.SchoolId;
+import io.confluent.ps.streams.referenceapp.schools.model.OrgUnit;
+import io.confluent.ps.streams.referenceapp.schools.model.SchStatusCode;
+import io.confluent.ps.streams.referenceapp.schools.model.SchSubtype;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
+import lombok.Data;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.MonthDay;
-import java.util.TimeZone;
-import java.util.UUID;
-
-import static java.time.Duration.ofMinutes;
 
 public class SchoolTopology {
 
+  public static final String SCHOOL_EVENT_TOPIC = "org_unit";
   private final KSUtils ksutils = new KSUtils();
 
   @Inject
   public SchoolTopology(StreamsBuilder builder) {
-    KStream<SchoolId, SchoolEvent> stream = builder.stream("school-event");
+    KStream<Object, Object> orgTopicStream = builder.stream(SCHOOL_EVENT_TOPIC).selectKey((k, v) -> ((OrgUnit) v).getSchoolCode());
+    KStream<Object, Object> subTypeStream = builder.stream(SCHOOL_EVENT_TOPIC).selectKey((k, v) -> ((SchSubtype) v).getSchoolCode());
+    KStream<Object, Object> statusCodeStream = builder.stream(SCHOOL_EVENT_TOPIC).selectKey((k, v) -> ((SchStatusCode) v).getSchoolCode());
+
+    KStream<Object, Object> mergedStream = orgTopicStream.merge(subTypeStream).merge(statusCodeStream);
+
+    mergedStream.groupByKey().aggregate(Aggregate::new, (key, value, aggregate) -> {
+      if (value instanceof OrgUnit) {
+        aggregate.setOrg((OrgUnit) value);
+      } else if (value instanceof SchSubtype) {
+        aggregate.setType((SchSubtype) value);
+      } else if (value instanceof SchStatusCode) {
+        aggregate.setStatus((SchStatusCode) value);
+      }
+      return aggregate;
+    });
+  }
+
+  @Data
+  class Aggregate {
+    private OrgUnit org;
+    private SchSubtype type;
+    private SchStatusCode status;
   }
 
 }
