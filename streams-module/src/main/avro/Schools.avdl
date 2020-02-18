@@ -1,0 +1,20 @@
+@namespace("io.confluent.ps.streams.referenceapp.schools.model")
+protocol Schools {
+
+  record SchoolId {
+    string id;
+  }
+
+  enum ReviewedStatus {
+    YES, NO
+  }
+
+  record SchoolEvent {
+    SchoolId id;
+    string title;
+    int score;
+    int initialScore;
+    timestamp_ms createdAt;
+  }
+
+}
