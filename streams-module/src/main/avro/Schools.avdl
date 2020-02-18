@@ -8,19 +8,19 @@ protocol Schools {
   }
 
   record SchSubtype {
-    SchoolCode schoolCode;
+    SchoolId schoolCode;
     string code;
     string name;
   }
 
   record OrgUnit {
-    SchoolCode schoolCode;
+    SchoolId schoolCode;
     string code;
     string name;
   }
 
   record SchStatusCode {
-    SchoolCode schoolCode;
+    SchoolId schoolCode;
     string code;
     string name;
   }
