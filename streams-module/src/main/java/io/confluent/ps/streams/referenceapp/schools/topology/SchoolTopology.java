@@ -10,9 +10,12 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
 import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.PunctuationType;
+import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import javax.inject.Inject;
+import java.time.Duration;
 
 public class SchoolTopology {
 
@@ -23,57 +26,71 @@ public class SchoolTopology {
 
   @Inject
   public SchoolTopology(StreamsBuilder builder) {
-    KStream<Object, Object> orgTopicStream = builder.stream(ORG_TOPIC).selectKey((k, v) -> ((OrgUnit) v).getSchoolCode());
-    KStream<Object, Object> subTypeStream = builder.stream(SUP_TYPE_TOPIC).selectKey((k, v) -> ((SchSubtype) v).getSchoolCode());
-    KStream<Object, Object> statusCodeStream = builder.stream(STATUS_CODE_TOPIC).selectKey((k, v) -> ((SchStatusCode) v).getSchoolCode());
+    KStream<SchoolId, Object> orgTopicStream = builder.stream(ORG_TOPIC).selectKey((k, v) -> ((OrgUnit) v).getSchoolCode());
+    KStream<SchoolId, Object> subTypeStream = builder.stream(SUP_TYPE_TOPIC).selectKey((k, v) -> ((SchSubtype) v).getSchoolCode());
+    KStream<SchoolId, Object> statusCodeStream = builder.stream(STATUS_CODE_TOPIC).selectKey((k, v) -> ((SchStatusCode) v).getSchoolCode());
 
-    KStream<Object, Object> mergedStream = orgTopicStream.merge(subTypeStream).merge(statusCodeStream);
+    KStream<SchoolId, Object> mergedStream = orgTopicStream.merge(subTypeStream).merge(statusCodeStream);
 
-    val aggregateStream = mergedStream.groupByKey().aggregate(Aggregate::new, (key, value, aggregate) -> {
+    val aggregateStream = mergedStream.groupByKey().aggregate(SchoolAggregate::new, (key, value, schoolAggregate) -> {
       if (value instanceof OrgUnit) {
-        aggregate.setOrg((OrgUnit) value);
+        schoolAggregate.setOrg((OrgUnit) value);
       } else if (value instanceof SchSubtype) {
-        aggregate.setType((SchSubtype) value);
+        schoolAggregate.setType((SchSubtype) value);
       } else if (value instanceof SchStatusCode) {
-        aggregate.setStatus((SchStatusCode) value);
+        schoolAggregate.setStatus((SchStatusCode) value);
       }
-      return aggregate;
+      return schoolAggregate;
     });
+//
+//    ValueTransformerWithKeySupplier<SchoolId, Object, Object> valueTransformerWithKeySupplier = new ValueTransformerWithKeySupplier<>() {
+//      @Override
+//      public ValueTransformerWithKey<SchoolId, Object, Object> get() {
+//        return null;
+//      }
+//    };
 
     aggregateStream.toStream().transformValues(() -> {
-      return new ValueTransformerWithKey<SchoolId, Aggregate, Aggregate>() {
+      return new ValueTransformerWithKey<SchoolId, SchoolAggregate, SchoolAggregate>() {
 
-        private KeyValueStore<SchoolId, Integer> stateStore;
+        private Duration SUPPRESSION_TIME = Duration.ofSeconds(10);
+        private KeyValueStore<SchoolId, SchoolAggregate> aggregateStore;
+        private KeyValueStore<Long, SchoolId> suppressionStore;
         private int expectedRecordsCount = 3;
 
         @Override
         public void init(ProcessorContext context) {
-          this.stateStore = (KeyValueStore<SchoolId, Integer>) context.getStateStore("storeName");
+          this.suppressionStore = (KeyValueStore<Long, SchoolId>) context.getStateStore("supressionStore");
+          this.aggregateStore = (KeyValueStore<SchoolId, SchoolAggregate>) context.getStateStore("aggregateStore");
+
+          context.schedule(Duration.ofSeconds(10), PunctuationType.WALL_CLOCK_TIME, timestamp -> {
+            long expireTime = System.currentTimeMillis() - SUPPRESSION_TIME.toMillis();
+            KeyValueIterator<Long, SchoolId> expiredEntries = suppressionStore.range(0l, expireTime); // ready for emission
+            expiredEntries.forEachRemaining(entry -> {
+              SchoolId key = entry.value;
+              SchoolAggregate schoolAggregate = aggregateStore.get(key);
+              context.forward(key, schoolAggregate);
+            });
+          });
         }
 
         @Override
-        public Aggregate transform(SchoolId key, Aggregate value) {
-          Integer integer = stateStore.get(key);
-          if (integer == expectedRecordsCount) {
-            // emit
-            // reset
-          } else {
-            // update
-            // ignore
-          }
-          return null;
+        public SchoolAggregate transform(SchoolId key, SchoolAggregate value) {
+          aggregateStore.put(key, value);
+          return null; // don't emit here, see punctuator
         }
 
         @Override
         public void close() {
-
+          aggregateStore.close();
+          suppressionStore.close();
         }
       };
     }, "aggregate-dedupper");
   }
 
   @Data
-  class Aggregate {
+  class SchoolAggregate {
     private OrgUnit org;
     private SchSubtype type;
     private SchStatusCode status;

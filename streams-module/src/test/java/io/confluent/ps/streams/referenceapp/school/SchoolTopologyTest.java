@@ -50,7 +50,7 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
   @Test
   void dataAggregator() {
     val schoolId = SchoolId.newBuilder().setId("a-school").build();
-    val build = OrgUnit.newBuilder().setCode("code").setSchoolCode().setName("").build();
+    val build = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("").build();
     orgTopic.pipeInput(schoolId, build);
   }
 
