@@ -1,6 +1,32 @@
 @namespace("io.confluent.ps.streams.referenceapp.schools.model")
 protocol Schools {
 
+
+
+  record SchoolCode {
+    string id;
+  }
+
+  record SchSubtype {
+    SchoolCode schoolCode;
+    string code;
+    string name;
+  }
+
+  record OrgUnit {
+    SchoolCode schoolCode;
+    string code;
+    string name;
+  }
+
+  record SchStatusCode {
+    SchoolCode schoolCode;
+    string code;
+    string name;
+  }
+
+
+
   record SchoolId {
     string id;
   }
