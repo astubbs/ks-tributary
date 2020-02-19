@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,21 +53,30 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
   }
 
   @Test
-  void dataAggregator() {
+  void dataAggregatorSimpleSuppressUntilTime() {
     // send through some data
     val schoolId = SchoolId.newBuilder().setId("a-school").build();
-    val build = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("sdsd").build();
-    orgTopic.pipeInput(schoolId, build);
+    val anOrgUnit = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("sdsd").build();
+    SchSubtype subType = SchSubtype.newBuilder().setSchoolCode(schoolId).setCode("code").setName("name").build();
+
+    orgTopic.pipeInput(schoolId, anOrgUnit);
+    subtypeTopic.pipeInput(schoolId, subType);
 
     // check records are suppressed
     assertThat(aggTopic.readValuesToList()).hasSize(0);
 
     // move time forward
-
+    long twoMinutesMs = Duration.ofMinutes(2).toMillis();
+    long now = System.currentTimeMillis();
+    orgTopic.pipeInput(schoolId, anOrgUnit, now + twoMinutesMs);
 
     // check record emitted
     List<SchoolAggregate> records = aggTopic.readValuesToList();
     assertThat(records).hasSize(1);
+    SchoolAggregate actual = records.stream().findFirst().get();
+    assertThat(actual.getOrg()).isEqualTo(anOrgUnit);
+    assertThat(actual.getType()).isEqualTo(subType);
+    assertThat(actual.getStatusCode()).isNull();
   }
 
 }
