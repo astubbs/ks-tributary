@@ -40,6 +40,10 @@ public class KSUtils {
     return serde1;
   }
 
+  public <T extends SpecificRecord> SpecificAvroSerde<T> serdeFor() {
+    return this.<T>serdeFor(false);
+  }
+
   public <T extends SpecificRecord> SpecificAvroSerde<T> serdeFor(boolean isKey) {
     SpecificAvroSerde<T> tSpecifivAvroSerde = new SpecificAvroSerde<T>();
     tSpecifivAvroSerde.configure(serdeConfig, isKey);

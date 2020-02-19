@@ -25,9 +25,9 @@ protocol Schools {
 
   record SchoolAggregate {
     SchoolId id;
-    OrgUnit org;
-    SchSubtype type;
-    SchStatusCode statusCode;
+    union{null, OrgUnit} org;
+    union{null, SchSubtype} type;
+    union{null, SchStatusCode} statusCode;
   }
 
   enum ReviewedStatus {
