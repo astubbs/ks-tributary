@@ -8,17 +8,22 @@ import io.confluent.ps.streams.referenceapp.schools.model.*;
 import io.confluent.ps.streams.referenceapp.schools.topology.SchoolTopology;
 import io.confluent.ps.streams.referenceapp.tests.GuiceInjectedTestBase;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-
 import java.time.Duration;
 import java.util.List;
 
+import static io.confluent.ps.streams.referenceapp.schools.topology.SchoolTopology.suppressionWindowTime;
+import static java.time.Duration.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
+@Slf4j
 public class SchoolTopologyTest extends GuiceInjectedTestBase {
 
   @Inject
@@ -53,7 +58,7 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
   }
 
   @Test
-  void dataAggregatorSimpleSuppressUntilTime() {
+  void dataAggregatorSimpleSuppressUntilStreamTime() {
     // send through some data
     val schoolId = SchoolId.newBuilder().setId("a-school").build();
     val anOrgUnit = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("sdsd").build();
@@ -65,8 +70,18 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
     // check records are suppressed
     assertThat(aggTopic.readValuesToList()).hasSize(0);
 
+    // test nothing is emitted, beyond the suppression window, unless we send messages
+    // (this slows the test down a "lot")
+    //    Awaitility.setDefaultTimeout(ofSeconds(15));
+    Duration waitUntil = suppressionWindowTime.plus(ofMillis(500));
+    log.debug("Start testing lack of messages (suppression window is {} and we will wait up to {})...", suppressionWindowTime, waitUntil);
+    await().during(waitUntil)
+//            .pollInterval(ofSeconds(1))
+            .conditionEvaluationListener(condition -> log.debug("Still no message emitted... (elapsed:{}ms, remaining:{}ms)", condition.getElapsedTimeInMS(), condition.getRemainingTimeInMS()))
+            .until(() -> aggTopic.readValuesToList().size() == 0);
+
     // move time forward
-    long twoMinutesMs = Duration.ofMinutes(2).toMillis();
+    long twoMinutesMs = ofMinutes(2).toMillis();
     long now = System.currentTimeMillis();
     orgTopic.pipeInput(schoolId, anOrgUnit, now + twoMinutesMs);
 
@@ -77,6 +92,16 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
     assertThat(actual.getOrg()).isEqualTo(anOrgUnit);
     assertThat(actual.getType()).isEqualTo(subType);
     assertThat(actual.getStatusCode()).isNull();
+  }
+
+  @Test
+  @Disabled
+  void suppressionWindowLookupStreamTime() {
+  }
+
+  @Test
+  @Disabled
+  void customWallClockTimer() {
   }
 
 }

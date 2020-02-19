@@ -28,7 +28,7 @@ public class SchoolTopology {
   public static final String SCHOOL_AGGREGATE_STORE = "school-aggregate-store";
   public static final String SCHOOL_AGGREGATE_SUPPRESSION_STORE = "school-aggregate-suppression-store";
 
-  private final Duration suppressionWindowTime = Duration.ofSeconds(20);
+  public static final Duration suppressionWindowTime = Duration.ofMillis(500); // for testing
 
   private final StoreProvider storeProvider;
 
