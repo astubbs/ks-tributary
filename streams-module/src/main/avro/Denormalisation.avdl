@@ -1,0 +1,33 @@
+@namespace("io.confluent.ps.streams.referenceapp.denormalisation.model")
+protocol Denormalisation {
+
+  record DocumentId {
+    string id;
+  }
+
+  record ComponentOne {
+    DocumentId parentId;
+    string code;
+    string name;
+  }
+
+  record ComponentTwo {
+    DocumentId parentId;
+    string code;
+    string name;
+  }
+
+  record ComponentThree {
+    DocumentId parentId;
+    string code;
+    string name;
+  }
+
+  record ComponentAggregate {
+    DocumentId parentId;
+    union{null, ComponentOne} one;
+    union{null, ComponentTwo} two;
+    union{null, ComponentThree} three;
+  }
+
+}
