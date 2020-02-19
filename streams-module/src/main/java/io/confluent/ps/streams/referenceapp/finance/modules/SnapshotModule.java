@@ -70,7 +70,8 @@ public class SnapshotModule extends AbstractModule {
                    SchoolTopology depSeven
 
   ) {
-    return builder.build();
+    Topology build = builder.build();
+    return build;
   }
 
   /**

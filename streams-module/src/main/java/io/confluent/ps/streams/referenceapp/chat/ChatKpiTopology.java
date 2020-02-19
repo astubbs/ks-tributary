@@ -43,7 +43,6 @@ public class ChatKpiTopology {
 
   @Inject
   public ChatKpiTopology(StreamsBuilder builder) {
-    builder.
     KTable<ServiceUserId, UserAccess> serviceUserIdUserAccessKStream = usersWithAccessAchieved(builder);
 
     goalsKPI(builder, serviceUserIdUserAccessKStream);
@@ -65,7 +64,7 @@ public class ChatKpiTopology {
   }
 
   /**
-   * Users who have acheived access
+   * Users who have achieved access
    *
    * @param builder
    *

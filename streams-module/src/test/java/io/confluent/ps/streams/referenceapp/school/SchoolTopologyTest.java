@@ -55,13 +55,14 @@ public class SchoolTopologyTest extends GuiceInjectedTestBase {
   void dataAggregator() {
     // send through some data
     val schoolId = SchoolId.newBuilder().setId("a-school").build();
-    val build = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("").build();
+    val build = OrgUnit.newBuilder().setCode("code").setSchoolCode(schoolId).setName("sdsd").build();
     orgTopic.pipeInput(schoolId, build);
 
     // check records are suppressed
     assertThat(aggTopic.readValuesToList()).hasSize(0);
 
     // move time forward
+
 
     // check record emitted
     List<SchoolAggregate> records = aggTopic.readValuesToList();
