@@ -1,7 +1,7 @@
 package io.confluent.ps.streams.referenceapp.school;
 
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
-import io.confluent.ps.streams.referenceapp.schools.topology.StoreProvider;
+import io.confluent.ps.streams.referenceapp.denormilsation.topology.StoreProvider;
 import org.apache.kafka.streams.state.QueryableStoreType;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 

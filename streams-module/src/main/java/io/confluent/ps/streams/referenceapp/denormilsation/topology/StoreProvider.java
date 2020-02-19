@@ -1,4 +1,4 @@
-package io.confluent.ps.streams.referenceapp.schools.topology;
+package io.confluent.ps.streams.referenceapp.denormilsation.topology;
 
 import org.apache.kafka.streams.state.QueryableStoreType;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;

@@ -1,10 +1,9 @@
 package io.confluent.ps.streams.referenceapp.school;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import io.confluent.ps.streams.referenceapp.schools.topology.StoreProvider;
+import io.confluent.ps.streams.referenceapp.denormilsation.topology.StoreProvider;
 
-public class SchoolTestModule extends AbstractModule {
+public class DenormalisationTestModule extends AbstractModule {
 
   @Override
   protected void configure() {

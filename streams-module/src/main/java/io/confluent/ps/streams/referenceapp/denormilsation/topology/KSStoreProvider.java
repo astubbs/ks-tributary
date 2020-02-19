@@ -1,4 +1,4 @@
-package io.confluent.ps.streams.referenceapp.schools.topology;
+package io.confluent.ps.streams.referenceapp.denormilsation.topology;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.streams.KafkaStreams;

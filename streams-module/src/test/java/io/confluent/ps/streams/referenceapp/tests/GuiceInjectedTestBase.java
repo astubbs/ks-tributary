@@ -3,7 +3,7 @@ package io.confluent.ps.streams.referenceapp.tests;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.confluent.ps.streams.referenceapp.finance.TestModule;
-import io.confluent.ps.streams.referenceapp.school.SchoolTestModule;
+import io.confluent.ps.streams.referenceapp.school.DenormalisationTestModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -18,7 +18,7 @@ public class GuiceInjectedTestBase {
 
   @BeforeEach
   public void inject() {
-    injector = Guice.createInjector(new TestModule(tempDir), new SchoolTestModule());
+    injector = Guice.createInjector(new TestModule(tempDir), new DenormalisationTestModule());
     injector.injectMembers(this);
   }
 
