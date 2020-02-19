@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import io.confluent.ps.streams.referenceapp.chat.ChatKpiTopology;
 import io.confluent.ps.streams.referenceapp.finance.model.avro.idlmodel.InstrumentId;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
+import io.confluent.ps.streams.referenceapp.schools.topology.SchoolTopology;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.WrappingSpecificAvroSerde;
@@ -53,6 +54,7 @@ public class SnapshotModule extends AbstractModule {
     bind(SnapshotTopologyPrecomputerSharded.class).in(SINGLETON);
     bind(SnapshotTopologyHighLowBarWindows.class).in(SINGLETON);
     bind(ChatKpiTopology.class).in(SINGLETON);
+    bind(SchoolTopology.class).in(SINGLETON);
   }
 
   // depends on all topologies having been constructed
@@ -64,7 +66,9 @@ public class SnapshotModule extends AbstractModule {
                    SnapshotTopologyPrecomputerSimple depThree,
                    SnapshotTopologyPrecomputerSharded depFour,
                    SnapshotTopologyHighLowBarWindows depFive,
-                   ChatKpiTopology depSix
+                   ChatKpiTopology depSix,
+                   SchoolTopology depSeven
+
   ) {
     return builder.build();
   }

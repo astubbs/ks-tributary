@@ -23,6 +23,13 @@ protocol Schools {
     string name;
   }
 
+  record SchoolAggregate {
+    SchoolId id;
+    OrgUnit org;
+    SchSubtype type;
+    SchStatusCode statusCode;
+  }
+
   enum ReviewedStatus {
     YES, NO
   }
