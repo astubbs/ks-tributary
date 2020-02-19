@@ -69,11 +69,11 @@ public class SchoolTopology {
             }, Materialized.as(SCHOOL_AGGREGATE_STORE));
 
 
-    windowSuppressTechnique(aggregate);
+    windowSuppressTechnique(aggregate).through(AGGREGATE_UPDATES_TOPIC);
 
-//    windowSuppressTechniqueResetting(aggregate);
+//    windowSuppressTechniqueResetting(aggregate).through(AGGREGATE_UPDATES_TOPIC);
 //
-//    customProcessorSuppressTechnique(builder, aggregate);
+//    customProcessorSuppressTechnique(builder, aggregate).through(AGGREGATE_UPDATES_TOPIC);
   }
 
   /**
@@ -168,7 +168,7 @@ public class SchoolTopology {
           suppressionStore.close();
         }
       };
-    }, SCHOOL_AGGREGATE_SUPPRESSION_STORE).through(AGGREGATE_UPDATES_TOPIC);
+    }, SCHOOL_AGGREGATE_SUPPRESSION_STORE);
   }
 
 }
