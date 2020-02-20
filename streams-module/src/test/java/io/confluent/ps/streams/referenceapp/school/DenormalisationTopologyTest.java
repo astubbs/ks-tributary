@@ -4,14 +4,13 @@ import com.github.jukkakarvanen.kafka.streams.test.TestInputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TestOutputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import io.confluent.ps.streams.referenceapp.denormalisation.model.*;
-import io.confluent.ps.streams.referenceapp.finance.TestDataDriver;
 import io.confluent.ps.streams.referenceapp.denormilsation.topology.DenormalisationTopology;
+import io.confluent.ps.streams.referenceapp.finance.TestDataDriver;
 import io.confluent.ps.streams.referenceapp.tests.GuiceInjectedTestBase;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -19,7 +18,8 @@ import java.time.Duration;
 import java.util.List;
 
 import static io.confluent.ps.streams.referenceapp.denormilsation.topology.DenormalisationTopology.suppressionWindowTime;
-import static java.time.Duration.*;
+import static java.time.Duration.ofMillis;
+import static java.time.Duration.ofMinutes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -35,9 +35,9 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
   @Inject
   KSUtils ksutils;
 
-  TestInputTopic<DocumentId, ComponentOne> orgTopic;
-  TestInputTopic<DocumentId, ComponentTwo> statusTopic;
-  TestInputTopic<DocumentId, ComponentThree> subtypeTopic;
+  TestInputTopic<DocumentId, ComponentOne> comp_a_topic;
+  TestInputTopic<DocumentId, ComponentTwo> comp_b_topic;
+  TestInputTopic<DocumentId, ComponentThree> comp_c_topic;
 
   TestOutputTopic<DocumentId, ComponentAggregate> aggTopicUntil;
   TestOutputTopic<DocumentId, ComponentAggregate> aggTopicClosses;
@@ -48,14 +48,14 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
 //    var keySerde = ksutils.<GoalId, GoalId>wrappingSerdeFor(true);
 //    var valueSerde = ksutils.<GoalEvent, GoalEventWrapped>wrappingSerdeFor(false);
     var keySerde = ksutils.<DocumentId>serdeFor(true);
-    var orgSerde = ksutils.<ComponentOne>serdeFor(false);
-    var statusSerde = ksutils.<ComponentTwo>serdeFor(false);
-    var subtypeSerde = ksutils.<ComponentThree>serdeFor(false);
+    var compOneSerde = ksutils.<ComponentOne>serdeFor(false);
+    var compTwoSerde = ksutils.<ComponentTwo>serdeFor(false);
+    var compThreeSerde = ksutils.<ComponentThree>serdeFor(false);
     var aggSerde = ksutils.<ComponentAggregate>serdeFor(false);
 
-    orgTopic = td.createInputTopic(DenormalisationTopology.ORG_UNIT_TOPIC, keySerde.serializer(), orgSerde.serializer());
-    statusTopic = td.createInputTopic(DenormalisationTopology.STATUS_CODE_TOPIC, keySerde.serializer(), statusSerde.serializer());
-    subtypeTopic = td.createInputTopic(DenormalisationTopology.SUP_TYPE_TOPIC, keySerde.serializer(), subtypeSerde.serializer());
+    comp_a_topic = td.createInputTopic(DenormalisationTopology.COMP_A_TOPIC, keySerde.serializer(), compOneSerde.serializer());
+    comp_b_topic = td.createInputTopic(DenormalisationTopology.COMP_B_TOPIC, keySerde.serializer(), compTwoSerde.serializer());
+    comp_c_topic = td.createInputTopic(DenormalisationTopology.COMP_C_TOPIC, keySerde.serializer(), compThreeSerde.serializer());
 
     aggTopicUntil = td.createOutputTopic(DenormalisationTopology.AGGREGATE_UPDATES_TOPIC_SUPPRESS_UNTIL, keySerde.deserializer(), aggSerde.deserializer());
     aggTopicClosses = td.createOutputTopic(DenormalisationTopology.AGGREGATE_UPDATES_TOPIC_SUPPRESS_CLOSES, keySerde.deserializer(), aggSerde.deserializer());
@@ -70,11 +70,11 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
   private void test(TestOutputTopic<DocumentId, ComponentAggregate> output) {
     // send through some data
     val parent = DocumentId.newBuilder().setId("a-school").build();
-    val anOrgUnit = ComponentOne.newBuilder().setCode("code").setParentId(parent).setName("sdsd").build();
-    ComponentThree subType = ComponentThree.newBuilder().setParentId(parent).setCode("code").setName("name").build();
+    val compOne = ComponentOne.newBuilder().setCode("code").setParentId(parent).setName("sdsd").build();
+    val compTwo = ComponentTwo.newBuilder().setParentId(parent).setCode("code").setName("name").build();
 
-    orgTopic.pipeInput(parent, anOrgUnit);
-    subtypeTopic.pipeInput(parent, subType);
+    comp_a_topic.pipeInput(parent, compOne);
+    comp_b_topic.pipeInput(parent, compTwo);
 
     // check records are suppressed
     assertThat(output.readValuesToList()).hasSize(0);
@@ -92,15 +92,15 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
     // move time forward
     long twoMinutesMs = ofMinutes(2).toMillis();
     long now = System.currentTimeMillis();
-    anOrgUnit.setName("a-different-name");
-    orgTopic.pipeInput(parent, anOrgUnit, now + twoMinutesMs);
+    compOne.setName("a-different-name");
+    comp_a_topic.pipeInput(parent, compOne, now + twoMinutesMs);
 
     // check record emitted
     List<ComponentAggregate> records = output.readValuesToList();
     assertThat(records).hasSize(1);
     ComponentAggregate actual = records.stream().findFirst().get();
-    assertThat(actual.getOne()).isEqualTo(anOrgUnit);
-    assertThat(actual.getTwo()).isEqualTo(subType);
+    assertThat(actual.getOne()).isEqualTo(compOne);
+    assertThat(actual.getTwo()).isEqualTo(compTwo);
     assertThat(actual.getThree()).isNull();
   }
 
@@ -110,7 +110,6 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
   }
 
   @Test
-  @Disabled
   void customWallClockTimer() {
     test(aggTopicCustom);
   }

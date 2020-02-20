@@ -1,5 +1,6 @@
 package io.confluent.ps.streams.referenceapp.denormilsation.topology;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import io.confluent.ps.streams.referenceapp.denormalisation.model.*;
@@ -23,9 +24,9 @@ public class DenormalisationTopology {
 
   final KSUtils ksUtils;
 
-  public static final String ORG_UNIT_TOPIC = "org_unit";
-  public static final String SUP_TYPE_TOPIC = "sub_type";
-  public static final String STATUS_CODE_TOPIC = "status_code";
+  public static final String COMP_A_TOPIC = "comp_a";
+  public static final String COMP_B_TOPIC = "com_b";
+  public static final String COMP_C_TOPIC = "com_c";
   public static final String AGGREGATE_UPDATES_TOPIC_SUPPRESS_UNTIL = "aggregate_updates_until";
   public static final String AGGREGATE_UPDATES_TOPIC_SUPPRESS_CLOSES = "aggregate_updates_closes";
   public static final String AGGREGATE_UPDATES_TOPIC_CUSTOM = "aggregate_updates_custom";
@@ -50,11 +51,11 @@ public class DenormalisationTopology {
     SpecificAvroSerde<SpecificRecord> valueSerde = ksUtils.serdeFor();
     Consumed<DocumentId, SpecificRecord> with = Consumed.with(keySerde, valueSerde);
 
-    KStream<DocumentId, SpecificRecord> orgTopicStream = builder.stream(ORG_UNIT_TOPIC, with)
+    KStream<DocumentId, SpecificRecord> orgTopicStream = builder.stream(COMP_A_TOPIC, with)
             .selectKey((k, v) -> ((ComponentOne) v).getParentId());
-    KStream<DocumentId, SpecificRecord> subTypeStream = builder.stream(SUP_TYPE_TOPIC, with)
+    KStream<DocumentId, SpecificRecord> subTypeStream = builder.stream(COMP_B_TOPIC, with)
             .selectKey((k, v) -> ((ComponentTwo) v).getParentId());
-    KStream<DocumentId, SpecificRecord> statusCodeStream = builder.stream(STATUS_CODE_TOPIC, with)
+    KStream<DocumentId, SpecificRecord> statusCodeStream = builder.stream(COMP_C_TOPIC, with)
             .selectKey((k, v) -> ((ComponentThree) v).getParentId());
 
     KStream<DocumentId, SpecificRecord> mergedStream = orgTopicStream
@@ -63,18 +64,18 @@ public class DenormalisationTopology {
 
     KTable<DocumentId, ComponentAggregate> aggregate = mergedStream
             .groupByKey()
-            .aggregate(ComponentAggregate::new, (key, value, schoolAggregate) -> {
+            .aggregate(ComponentAggregate::new, (key, value, componentAggregate) -> {
 
-              schoolAggregate.setParentId(key); // yuck
+              componentAggregate.setParentId(key); // yuck
 
               if (value instanceof ComponentOne) {
-                schoolAggregate.setOne((ComponentOne) value);
+                componentAggregate.setOne((ComponentOne) value);
               } else if (value instanceof ComponentTwo) {
-                schoolAggregate.setTwo((ComponentTwo) value);
+                componentAggregate.setTwo((ComponentTwo) value);
               } else if (value instanceof ComponentThree) {
-                schoolAggregate.setThree((ComponentThree) value);
+                componentAggregate.setThree((ComponentThree) value);
               }
-              return schoolAggregate;
+              return componentAggregate;
             }, Materialized.as(SCHOOL_AGGREGATE_STORE));
 
 
@@ -83,10 +84,13 @@ public class DenormalisationTopology {
     windowSuppressTechniqueResetting(aggregate).through(AGGREGATE_UPDATES_TOPIC_SUPPRESS_CLOSES);
 
     customProcessorSuppressTechnique(builder, aggregate).through(AGGREGATE_UPDATES_TOPIC_CUSTOM);
+
+    // deduplicator()
   }
 
   /**
    * Simple but the timer doesn't reset when a new aggregate is received
+   *
    * @param aggregateStream
    * @return
    */
@@ -107,11 +111,14 @@ public class DenormalisationTopology {
     val suppressionWindow = TimeWindows.of(suppressionWindowTime);
     Suppressed<Windowed> suppression = Suppressed.untilWindowCloses(unbounded());
 
+    SpecificAvroSerde<DocumentId> keySerde = ksUtils.serdeFor();
+    SpecificAvroSerde<ComponentAggregate> valueSerde = ksUtils.serdeFor();
+
     val windowStream = aggregateStream
             .toStream(Named.as("stream-for-suppression"))
             .groupByKey()
             .windowedBy(suppressionWindow)
-            .reduce((value1, value2) -> value2, Named.as("replace-with-new"))
+            .reduce((value1, value2) -> value2, Named.as("replace-with-new"), Materialized.with(keySerde, valueSerde)) // KAFKA-9259
             .suppress(suppression);
 
     return windowStream
@@ -141,8 +148,8 @@ public class DenormalisationTopology {
     StoreBuilder<KeyValueStore<Long, ComponentAggregate>> suppressionStoreBuilder = Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(SCHOOL_AGGREGATE_SUPPRESSION_STORE), Serdes.Long(), ksUtils.<ComponentAggregate>serdeFor()).withLoggingEnabled(Maps.newHashMap());
     builder.addStateStore(suppressionStoreBuilder);
 
-    return aggregateStream.toStream().transformValues(() -> {
-      return new ValueTransformerWithKey<DocumentId, ComponentAggregate, ComponentAggregate>() {
+    return aggregateStream.toStream().flatTransformValues(() -> {
+      return new ValueTransformerWithKey<DocumentId, ComponentAggregate, Iterable<ComponentAggregate>>() {
 
         private Duration SUPPRESSION_TIME = Duration.ofSeconds(10);
         private KeyValueStore<Long, DocumentId> suppressionStore;
@@ -166,11 +173,11 @@ public class DenormalisationTopology {
         }
 
         @Override
-        public ComponentAggregate transform(DocumentId key, ComponentAggregate value) {
+        public Iterable<ComponentAggregate> transform(DocumentId key, ComponentAggregate value) {
           // update the last seen time stamp for suppression
           long now = System.currentTimeMillis();
           suppressionStore.put(now, key);
-          return null; // don't emit here, see punctuator
+          return Lists.newArrayList(); // don't emit here, see punctuator
         }
 
         @Override
