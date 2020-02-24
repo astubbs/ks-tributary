@@ -34,6 +34,8 @@ Realistic implementation of a full real Kafka Streams application and stream pro
      * [Building](#building)
      * [Contributing](#contributing)
 
+Toc generation: `↪ cat /Users/antony/repos/confluent/ks-tributary/README.md | ./gh-md-toc -`
+
 ## How to run
 
 Integration tests require a running docker daemon.
