@@ -10,6 +10,9 @@ import io.confluent.ps.streams.referenceapp.tests.GuiceInjectedTestBase;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+//import org.apache.kafka.streams.TestInputTopic;
+//import org.apache.kafka.streams.TestOutputTopic;
+//import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,20 +67,22 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
 
   @Test
   void dataAggregatorSimpleSuppressUntilStreamTime() {
-    test(aggTopicUntil);
+    test(aggTopicUntil, false);
   }
 
-  private void test(TestOutputTopic<DocumentId, ComponentAggregate> output) {
+  private void test(TestOutputTopic<DocumentId, ComponentAggregate> outputTopic, boolean useWallClock) {
     // send through some data
     val parent = DocumentId.newBuilder().setId("a-school").build();
     val compOne = ComponentOne.newBuilder().setCode("code").setParentId(parent).setName("sdsd").build();
     val compTwo = ComponentTwo.newBuilder().setParentId(parent).setCode("code").setName("name").build();
 
-    comp_a_topic.pipeInput(parent, compOne);
-    comp_b_topic.pipeInput(parent, compTwo);
+    long now = System.currentTimeMillis();
+
+    comp_a_topic.pipeInput(parent, compOne, now);
+    comp_b_topic.pipeInput(parent, compTwo, now);
 
     // check records are suppressed
-    assertThat(output.readValuesToList()).hasSize(0);
+    assertThat(outputTopic.readValuesToList()).hasSize(0);
 
     // test nothing is emitted, beyond the suppression window, unless we send messages
     // (this slows the test down a "lot")
@@ -87,16 +92,22 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
     await().during(waitUntil)
 //            .pollInterval(ofSeconds(1))
             .conditionEvaluationListener(condition -> log.debug("Still no message emitted... (elapsed:{}ms, remaining:{}ms)", condition.getElapsedTimeInMS(), condition.getRemainingTimeInMS()))
-            .until(() -> output.readValuesToList().size() == 0);
+            .until(() -> outputTopic.readValuesToList().size() == 0);
 
     // move time forward
-    long twoMinutesMs = ofMinutes(2).toMillis();
-    long now = System.currentTimeMillis();
-    compOne.setName("a-different-name");
-    comp_a_topic.pipeInput(parent, compOne, now + twoMinutesMs);
+    Duration twoMinutes = ofMinutes(2);
+    if (useWallClock) {
+      td.advanceWallClockTime(twoMinutes);
+    } else {
+      compOne.setName("a-different-name");
+      long moveTo = now + twoMinutes.toMillis();
+      comp_a_topic.pipeInput(parent, compOne, moveTo);
+    }
+//    timeMover.apply(KeyValue.pair(parent, compOne), now);
+
 
     // check record emitted
-    List<ComponentAggregate> records = output.readValuesToList();
+    List<ComponentAggregate> records = outputTopic.readValuesToList();
     assertThat(records).hasSize(1);
     ComponentAggregate actual = records.stream().findFirst().get();
     assertThat(actual.getOne()).isEqualTo(compOne);
@@ -106,12 +117,12 @@ public class DenormalisationTopologyTest extends GuiceInjectedTestBase {
 
   @Test
   void suppressionWindowLookupStreamTime() {
-    test(aggTopicClosses);
+    test(aggTopicClosses, false);
   }
 
   @Test
   void customWallClockTimer() {
-    test(aggTopicCustom);
+    test(aggTopicCustom, true);
   }
 
 }
