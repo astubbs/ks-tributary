@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.Processor;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.*;
@@ -115,21 +116,24 @@ public class DenormalisationTopology {
     SpecificAvroSerde<ComponentAggregate> valueSerde = ksUtils.serdeFor();
 
     val windowStream = aggregateStream
-            .toStream(Named.as("stream-for-suppression"))
+            .toStream()//Named.as("stream-for-suppression")) // TODO 2.4
             .groupByKey()
             .windowedBy(suppressionWindow)
-            .reduce((value1, value2) -> value2, Named.as("replace-with-new"), Materialized.with(keySerde, valueSerde)) // KAFKA-9259
+//            .reduce((value1, value2) -> value2, Named.as("replace-with-new"), Materialized.with(keySerde, valueSerde)) // KAFKA-9259 // TODO 2.4
+            .reduce((value1, value2) -> value2, Materialized.with(keySerde, valueSerde)) // KAFKA-9259
             .suppress(suppression);
 
     return windowStream
-            .toStream(Named.as("unsuppressed-updates-for-lookup"))
+            //.toStream(Named.as("unsuppressed-updates-for-lookup")) // TODO 2.4
+            .toStream()
             .map((windowedKey, suppressedWindowedValue) -> {
               DocumentId key = windowedKey.key();
               ReadOnlyKeyValueStore<DocumentId, ComponentAggregate> aggregateStore = getAggregateStore();
               ComponentAggregate schoolAggregateValueAndTimestamp = aggregateStore.get(key);
               val pair = KeyValue.pair(key, schoolAggregateValueAndTimestamp);
               return pair;
-            }, Named.as("lookup-full-aggregate-upon-trigger"));
+            //}, Named.as("lookup-full-aggregate-upon-trigger")); // TODO 2.4
+            });
   }
 
   private ReadOnlyKeyValueStore<DocumentId, ComponentAggregate> getAggregateStore() {
@@ -139,7 +143,6 @@ public class DenormalisationTopology {
   /**
    * Complex but runs on wall clock time.
    *
-   *
    * @param builder
    * @param aggregateStream
    * @return
@@ -147,13 +150,28 @@ public class DenormalisationTopology {
   private KStream<DocumentId, ComponentAggregate> customProcessorSuppressTechnique(StreamsBuilder builder, KTable<DocumentId, ComponentAggregate> aggregateStream) {
     StoreBuilder<KeyValueStore<Long, ComponentAggregate>> suppressionStoreBuilder = Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(SCHOOL_AGGREGATE_SUPPRESSION_STORE), Serdes.Long(), ksUtils.<ComponentAggregate>serdeFor()).withLoggingEnabled(Maps.newHashMap());
     builder.addStateStore(suppressionStoreBuilder);
+    aggregateStream.toStream().process(()->new Processor<DocumentId, ComponentAggregate>() {
+      @Override
+      public void init(ProcessorContext context) {
 
+      }
+
+      @Override
+      public void process(DocumentId key, ComponentAggregate value) {
+
+      }
+
+      @Override
+      public void close() {
+
+      }
+    });
     return aggregateStream.toStream().flatTransformValues(() -> {
       return new ValueTransformerWithKey<DocumentId, ComponentAggregate, Iterable<ComponentAggregate>>() {
 
-        private Duration SUPPRESSION_TIME = Duration.ofSeconds(10);
+        private Duration SUPPRESSION_TIME = suppressionWindowTime;
         private KeyValueStore<Long, DocumentId> suppressionStore;
-        private Duration SUPPRESSION_CHECK_FREQUENCY = Duration.ofSeconds(15);
+        private Duration SUPPRESSION_CHECK_FREQUENCY = Duration.ofMillis(100);
 
         @Override
         public void init(ProcessorContext context) {
@@ -167,6 +185,7 @@ public class DenormalisationTopology {
               ReadOnlyKeyValueStore<DocumentId, ComponentAggregate> aggregateStore = getAggregateStore();
               ComponentAggregate schoolAggregate = aggregateStore.get(key);
               context.forward(key, schoolAggregate);
+//              context.
               suppressionStore.delete(expireTime);
             });
           });
@@ -176,6 +195,8 @@ public class DenormalisationTopology {
         public Iterable<ComponentAggregate> transform(DocumentId key, ComponentAggregate value) {
           // update the last seen time stamp for suppression
           long now = System.currentTimeMillis();
+          // TODO fix bug where if key arrives at different times, we get multiple entries instead of a single one
+          // TODO fix bug where if multiple keys arrive at the same time stamp
           suppressionStore.put(now, key);
           return Lists.newArrayList(); // don't emit here, see punctuator
         }
