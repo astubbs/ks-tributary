@@ -48,7 +48,10 @@ Disable integration tests
 
     mvn clean verify -DskipITs
 
-## How to build
+### IDE
+
+- Requires Lombok plugin for your IDE
+
 
 ## Features
 
@@ -136,13 +139,8 @@ Dagger
   - Raw bin-packed vs GZipped vs Json
 - Java Science Units and Quantities use
 
-## Development
 
-### Building
-
-- Requires Lombok plugin for your IDE
-
-### Contributing
+## Contributing
 Submit a PR for review :)
 
 https://www.conventionalcommits.org/en/v1.0.0/
