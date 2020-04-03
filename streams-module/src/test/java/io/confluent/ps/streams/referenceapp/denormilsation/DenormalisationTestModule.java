@@ -1,4 +1,4 @@
-package io.confluent.ps.streams.referenceapp.school;
+package io.confluent.ps.streams.referenceapp.denormilsation;
 
 import com.google.inject.AbstractModule;
 import io.confluent.ps.streams.referenceapp.denormilsation.topology.StoreProvider;

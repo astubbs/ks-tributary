@@ -1,4 +1,4 @@
-package io.confluent.ps.streams.referenceapp.school;
+package io.confluent.ps.streams.referenceapp.denormilsation;
 
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import io.confluent.ps.streams.referenceapp.denormilsation.topology.StoreProvider;

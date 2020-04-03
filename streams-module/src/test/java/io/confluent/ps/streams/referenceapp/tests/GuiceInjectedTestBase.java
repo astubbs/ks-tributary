@@ -3,7 +3,7 @@ package io.confluent.ps.streams.referenceapp.tests;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.confluent.ps.streams.referenceapp.finance.TestModule;
-import io.confluent.ps.streams.referenceapp.school.DenormalisationTestModule;
+import io.confluent.ps.streams.referenceapp.denormilsation.DenormalisationTestModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
