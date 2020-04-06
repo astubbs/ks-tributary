@@ -80,7 +80,7 @@ public class DenormalisationTopology {
             }, Materialized.as(SCHOOL_AGGREGATE_STORE));
 
 
-    windowSuppressTechnique(aggregate).through(AGGREGATE_UPDATES_TOPIC_SUPPRESS_UNTIL);
+    suppressTechniqueNoReset(aggregate).through(AGGREGATE_UPDATES_TOPIC_SUPPRESS_UNTIL);
 
     windowSuppressTechniqueResetting(aggregate).through(AGGREGATE_UPDATES_TOPIC_SUPPRESS_CLOSES);
 
@@ -90,12 +90,12 @@ public class DenormalisationTopology {
   }
 
   /**
-   * Simple but the timer doesn't reset when a new aggregate is received
+   * Simple suppression based on a timer. The timer doesn't restart when a new update is received
    *
    * @param aggregateStream
    * @return
    */
-  private KStream<DocumentId, ComponentAggregate> windowSuppressTechnique(KTable<DocumentId, ComponentAggregate> aggregateStream) {
+  private KStream<DocumentId, ComponentAggregate> suppressTechniqueNoReset(KTable<DocumentId, ComponentAggregate> aggregateStream) {
     Suppressed.StrictBufferConfig unbounded = unbounded();
     val suppress = Suppressed.untilTimeLimit(suppressionWindowTime, unbounded);
     KTable<DocumentId, ComponentAggregate> stream = aggregateStream.suppress(suppress);
