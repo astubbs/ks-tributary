@@ -40,13 +40,17 @@ Integration tests require a running docker daemon.
 
 Intellij - use provided run targets to run with or without integration tests
 
+run `mvn comopile`
+
+Note: If you get errors about missing classes from a model package, it means you haven't triggered the maven generate-sources phase to run. You can make that happen by simply running `mvn compile`. 
+
 ### Maven
 
 Disable integration tests
 
     mvn clean verify -DskipITs
 
-## How to build
+### How to build
 
 ## Features
 
