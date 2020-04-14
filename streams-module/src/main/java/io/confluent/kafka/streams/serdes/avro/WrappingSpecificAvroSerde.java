@@ -1,8 +1,6 @@
 // Must be in this package as the exnteded class is package private
 package io.confluent.kafka.streams.serdes.avro;
 
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
-import io.confluent.kafka.streams.serdes.avro.WrappingSpecificAvroDeserializer;
 import io.confluent.ps.streams.referenceapp.chat.model.GoalEventWrapped;
 import io.confluent.ps.streams.referenceapp.finance.model.HighLowBD;
 import io.confluent.ps.streams.referenceapp.finance.model.InstrumentTickBD;
@@ -27,14 +25,14 @@ public class WrappingSpecificAvroSerde<T extends R, R extends SpecificRecord> im
     List<Class> aClass = List.of(InstrumentTickBD.class, HighLowBD.class, GoalEventWrapped.class);
 
     SpecificAvroSerializer<T> tSpecificAvroSerializer = new SpecificAvroSerializer<>();
-    WrappingSpecificAvroDeserializer<R, T> rtWrappingSpecificAvroDeserializer = new WrappingSpecificAvroDeserializer<>(aClass);
-    inner = Serdes.serdeFrom(tSpecificAvroSerializer, rtWrappingSpecificAvroDeserializer);
+    GenerationGapAvroDeserializer<R, T> rtGenerationGapAvroDeserializer = new GenerationGapAvroDeserializer<>(aClass);
+    inner = Serdes.serdeFrom(tSpecificAvroSerializer, rtGenerationGapAvroDeserializer);
   }
 
   public WrappingSpecificAvroSerde(List<Class> clazzes) {
     SpecificAvroSerializer<T> tSpecificAvroSerializer = new SpecificAvroSerializer<>();
-    WrappingSpecificAvroDeserializer<R, T> rtWrappingSpecificAvroDeserializer = new WrappingSpecificAvroDeserializer<R, T>(clazzes);
-    inner = Serdes.serdeFrom(tSpecificAvroSerializer, rtWrappingSpecificAvroDeserializer);
+    GenerationGapAvroDeserializer<R, T> rtGenerationGapAvroDeserializer = new GenerationGapAvroDeserializer<R, T>(clazzes);
+    inner = Serdes.serdeFrom(tSpecificAvroSerializer, rtGenerationGapAvroDeserializer);
   }
 
   /**
@@ -46,7 +44,7 @@ public class WrappingSpecificAvroSerde<T extends R, R extends SpecificRecord> im
     }
     inner = Serdes.serdeFrom(
             new SpecificAvroSerializer<T>(client),
-            new WrappingSpecificAvroDeserializer<R, T>(client));
+            new GenerationGapAvroDeserializer<R, T>(client));
   }
 
   @Override

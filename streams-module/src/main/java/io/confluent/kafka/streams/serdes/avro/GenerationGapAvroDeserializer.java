@@ -11,17 +11,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class WrappingSpecificAvroDeserializer<T extends SpecificRecord, R extends T> extends SpecificAvroDeserializer<R> {
+/**
+ * What does this class do? (construct child object of deserialised object if registered)
+ * Why is it useful?  (write behaviour code into child class of generated code, so as not to lose said code upon regenerating the avro classes, and have this done automatically by the framework)
+ *
+ * https://martinfowler.com/dslCatalog/generationGap.html
+ *
+ * Separate generated code from non-generated code by inheritance.
+ *
+ * @param <T>
+ * @param <R>
+ */
+public class GenerationGapAvroDeserializer<T extends SpecificRecord, R extends T> extends SpecificAvroDeserializer<R> {
 
   private KafkaAvroDeserializer inner;
   private Function<T, R> sss;
   private List<Class> clazzes;
 
-  public WrappingSpecificAvroDeserializer() {
+  public GenerationGapAvroDeserializer() {
     this.clazzes = Lists.newArrayList();
   }
 
-  public WrappingSpecificAvroDeserializer(List<Class> clazzes) {
+  public GenerationGapAvroDeserializer(List<Class> clazzes) {
     inner = new KafkaAvroDeserializer();
     this.clazzes = clazzes;
   }
@@ -29,11 +40,11 @@ public class WrappingSpecificAvroDeserializer<T extends SpecificRecord, R extend
   /**
    * For testing purposes only.
    */
-  WrappingSpecificAvroDeserializer(final SchemaRegistryClient client) {
+  GenerationGapAvroDeserializer(final SchemaRegistryClient client) {
     inner = new KafkaAvroDeserializer(client);
   }
 
-  public WrappingSpecificAvroDeserializer(Function<T, R> sss) {
+  public GenerationGapAvroDeserializer(Function<T, R> sss) {
     this.sss = sss;
   }
 
