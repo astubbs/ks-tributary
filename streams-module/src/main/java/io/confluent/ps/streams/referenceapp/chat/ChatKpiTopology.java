@@ -3,7 +3,6 @@ package io.confluent.ps.streams.referenceapp.chat;
 import io.confluent.ksql.util.Pair;
 import io.confluent.ps.streams.processors.YearlyAggregator;
 import io.confluent.ps.streams.referenceapp.chat.model.*;
-import io.confluent.ps.streams.referenceapp.chat.model.connect.test_service_user;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -16,12 +15,11 @@ import org.apache.kafka.streams.state.Stores;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
-import java.time.Duration;
 import java.time.MonthDay;
-import java.time.Period;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import static java.time.Duration.ofDays;
 import static java.time.Duration.ofMinutes;
 
 public class ChatKpiTopology {
@@ -55,7 +53,9 @@ public class ChatKpiTopology {
     KStream<ServiceUserId, ChatMessage> chatMessages = builder.stream("chat-messages");
 
     KGroupedStream<ServiceUserId, ChatMessage> serviceUserIdChatMessageKGroupedStream = chatMessages.groupByKey();
-    KTable<ServiceUserId, Transcript> transcripts = serviceUserIdChatMessageKGroupedStream.aggregate(() -> {
+
+    KTable<ServiceUserId, Transcript> transcripts = serviceUserIdChatMessageKGroupedStream
+            .aggregate(() -> {
       return Transcript.newBuilder().setId(TranscriptId.newBuilder().setId(UUID.randomUUID().toString()).build()).build();
     }, (key, message, transcript) -> {
       transcript.getMessages().add(message);
@@ -64,41 +64,56 @@ public class ChatKpiTopology {
   }
 
   /**
-   * Users who have acheived access
+   * Users who have achieved access
    *
    * @param builder
    *
    * @return
    */
   private KTable<ServiceUserId, UserAccess> usersWithAccessAchieved(StreamsBuilder builder) {
-    KTable<ServiceUserId, test_service_user> serviceUserIdServiceUserProfileKStream = userAccountsStream(builder);
+    KTable<ServiceUserId, ServiceUser> serviceUserIdServiceUserProfileKStream = userAccountsTable(builder);
 
-    KStream<ServiceUserId, MucRoom> chatStream = mucRoomsStream(builder).selectKey((key, value) -> value.getParticipantOne());
-    KStream<ServiceUserId, MucRoom> longChats = chatStream.filter((userId, chat) -> {
-      boolean chatLastedLongerThan = chat.getEndedAt().getMillis() - chat.getStartedAt().getMillis() < ofMinutes(8).toMillis();
+    KStream<ServiceUserId, MucRoom> chatStream = mucRoomsStream(builder)
+            .selectKey((key, value) -> value.getParticipantOne());
+    KStream<ServiceUserId, MucRoom> longChats = chatStream
+            .filter((userId, chat) -> {
+              long end = chat.getEndedAt().getMillis();
+              long start = chat.getStartedAt().getMillis();
+              boolean chatLastedLongerThan = end - start < ofMinutes(8).toMillis();
       return chatLastedLongerThan;
     });
 
-    KStream<ServiceUserId, Pair<MucRoom, test_service_user>> longChatsAndUserProfiles = longChats.join(serviceUserIdServiceUserProfileKStream, Pair::of);
+    KStream<ServiceUserId, Pair<MucRoom, ServiceUser>> longChatsAndUserProfiles = longChats
+            .join(serviceUserIdServiceUserProfileKStream, Pair::of);
 
     // count access per financial
     StoreBuilder mucChatStore = Stores.windowStoreBuilder(Stores.persistentWindowStore(MUC_COUNTER_STORE_NAME,
-            Duration.ofDays(900),
-            Duration.ofDays(300),
+            ofDays(900),
+            ofDays(300),
             false
             ),
             ksutils.serdeFor(true), ksutils.serdeFor(false));
     builder.addStateStore(mucChatStore);
 
-    KStream<ServiceUserId, KeyValue<ServiceUserId, Integer>> countedStream = longChats.transformValues(() -> new YearlyAggregator<>(
-            MonthDay.of(4, 1),
-            TimeZone.getTimeZone("GMT"),
-            () -> 0,
-            (key, value, aggregate) -> aggregate + 1,
-            MUC_COUNTER_STORE_NAME), MUC_COUNTER_STORE_NAME);
+    KStream<ServiceUserId, KeyValue<ServiceUserId, Integer>> countedStream = longChats
+            .transformValues(() -> new YearlyAggregator<>(
+                    MonthDay.of(4, 1),
+                    TimeZone.getTimeZone("GMT"),
+                    () -> 0,
+                    (key, value, aggregate) -> aggregate + 1,
+                    MUC_COUNTER_STORE_NAME), MUC_COUNTER_STORE_NAME);
 
     // convert access counts stream to table of user access objects
-    KTable<ServiceUserId, UserAccess> serviceUserIdUserAccessKTable = countedStream.groupByKey().reduce((value1, value2) -> value2).mapValues((readOnlyKey, value) -> UserAccess.newBuilder().setUserId(readOnlyKey).setAccessTime(DateTime.now()).setAccessCount(value.value + 1).build());
+    KTable<ServiceUserId, UserAccess> serviceUserIdUserAccessKTable = countedStream
+            .groupByKey()
+            .reduce((value1, value2) -> value2)
+            .mapValues((readOnlyKey, value) ->
+                    UserAccess
+                            .newBuilder()
+                            .setUserId(readOnlyKey)
+                            .setAccessTime(DateTime.now())
+                            .setAccessCount(value.value + 1)
+                            .build());
     return serviceUserIdUserAccessKTable;
   }
 
@@ -107,14 +122,15 @@ public class ChatKpiTopology {
     return stream;
   }
 
-  private KTable<ServiceUserId, test_service_user> userAccountsStream(StreamsBuilder builder) {
-    KTable<ServiceUserId, test_service_user> stream = builder.table(SERVICE_USER_PROFILES_TOPIC);
+  private KTable<ServiceUserId, ServiceUser> userAccountsTable(StreamsBuilder builder) {
+    KTable<ServiceUserId, ServiceUser> stream = builder.table(SERVICE_USER_PROFILES_TOPIC);
     return stream;
   }
 
   private void goalsKPI(StreamsBuilder builder, KTable<ServiceUserId, UserAccess> usersWithAccess) {
     KStream<GoalId, GoalEventWrapped> goalEvents = builder.stream(GOAL_EVENTS_TOPIC);
-    KStream<GoalId, GoalEventWrapped> progressedGoalsEvents = goalEvents.filter((key, goal) -> goal.hasMadeProgress());
+    KStream<GoalId, GoalEventWrapped> progressedGoalsEvents = goalEvents
+            .filter((key, goal) -> goal.hasMadeProgress());
 
     techniqueOneGoalsAnalysis(progressedGoalsEvents, usersWithAccess);
 
@@ -125,26 +141,40 @@ public class ChatKpiTopology {
   /// GOALS
 
   private void techniqueTwoGoalsAnalysis(StreamsBuilder builder, KTable<ServiceUserId, UserAccess> usersWithAccess, KStream<GoalId, GoalEventWrapped> progressedGoalsEvents) {
-    KStream<GoalId, GoalEventWrapped> veryProgressedGoalsEvents = progressedGoalsEvents.filter((key, goal) -> goal.hasSignificantProgress());
+    KStream<GoalId, GoalEventWrapped> veryProgressedGoalsEvents = progressedGoalsEvents
+            .filter((key, goal) -> goal.hasSignificantProgress());
 
     // construct cache
     KTable<GoalId, GoalEventWrapped> progressedGoals = builder.table(PROGRESSED_GOALS_TOPIC, Materialized.as(PROGRESSED_GOALS_STORE));
 
     // check if exists in cache
-    progressedGoalsEvents.leftJoin(progressedGoals, Pair::of).filter((key, value) -> {
-      boolean noMatchingValue = value.right == null; // join miss, first time this goal has progressed
-      return noMatchingValue;
-    }).mapValues(value -> value.left).to(PROGRESSED_GOALS_TOPIC);
+    progressedGoalsEvents
+            .leftJoin(progressedGoals, Pair::of)
+            .filter((key, value) -> {
+              boolean noMatchingValue = value.right == null; // join miss, first time this goal has progressed
+              return noMatchingValue;
+            })
+            .mapValues(value -> value.left)
+            .to(PROGRESSED_GOALS_TOPIC);
 
     KStream<GoalId, GoalEventWrapped> initialGoalProgressionEvents = progressedGoals.toStream();
-    initialGoalProgressionEvents.selectKey((key, goalEvent) -> goalEvent.getServiceUserId()).groupByKey().count(Materialized.as(GOALS_PROGRESSED_PER_USER_T2));
+    initialGoalProgressionEvents
+            .selectKey((key, goalEvent) -> goalEvent.getServiceUserId())
+            .groupByKey()
+            .count(Materialized.as(GOALS_PROGRESSED_PER_USER_T2));
 
     // filter by users with access - draft
-//    KStream<ServiceUserId, Pair<GoalEventWrapped, UserAccess>> initialGoalProgressionEventsWithAccess = progressedGoals.toStream().selectKey((key, value) -> value.getServiceUserId()).join(usersWithAccess, Pair::of);
-//    initialGoalProgressionEventsWithAccess.selectKey((key, goalEvent) -> goalEvent.left.getServiceUserId()).groupByKey().count(Materialized.as(GOALS_PROGRESSED_PER_USER_T2));
+    // KStream<ServiceUserId, Pair<GoalEventWrapped, UserAccess>> initialGoalProgressionEventsWithAccess = progressedGoals.toStream().selectKey((key, value) -> value.getServiceUserId()).join(usersWithAccess, Pair::of);
+    // initialGoalProgressionEventsWithAccess.selectKey((key, goalEvent) -> goalEvent.left.getServiceUserId()).groupByKey().count(Materialized.as(GOALS_PROGRESSED_PER_USER_T2));
 
-    KTable<ServiceUserId, Long> progressedEventsCount = progressedGoalsEvents.selectKey((key, value) -> value.getServiceUserId()).groupByKey().count(Materialized.as(PROGRESSED_COUNT_STORE));
-    KTable<ServiceUserId, Long> veryProgressedEventsCount = veryProgressedGoalsEvents.selectKey((key, value) -> value.getServiceUserId()).groupByKey().count(Materialized.as(VERY_PROGRESSED_COUNT_STORE));
+    KTable<ServiceUserId, Long> progressedEventsCount = progressedGoalsEvents
+            .selectKey((key, value) -> value.getServiceUserId())
+            .groupByKey()
+            .count(Materialized.as(PROGRESSED_COUNT_STORE));
+    KTable<ServiceUserId, Long> veryProgressedEventsCount = veryProgressedGoalsEvents
+            .selectKey((key, value) -> value.getServiceUserId())
+            .groupByKey()
+            .count(Materialized.as(VERY_PROGRESSED_COUNT_STORE));
   }
 
   private void techniqueOneGoalsAnalysis(KStream<GoalId, GoalEventWrapped> progressedGoalsEvents, KTable<ServiceUserId, UserAccess> usersWithAccess) {
@@ -153,8 +183,13 @@ public class ChatKpiTopology {
       return value2;
     });
 
-    KStream<ServiceUserId, Pair<GoalEventWrapped, UserAccess>> initialGoalProgressionEventsWithAccess = stepCountedGoalProgression.toStream().selectKey((key, value) -> value.getServiceUserId()).join(usersWithAccess, Pair::of);
-    initialGoalProgressionEventsWithAccess.selectKey((key, goalEvent) -> goalEvent.left.getServiceUserId()).groupByKey().count(Materialized.as(GOALS_PROGRESSED_PER_USER_T1));
+    KStream<ServiceUserId, Pair<GoalEventWrapped, UserAccess>> initialGoalProgressionEventsWithAccess = stepCountedGoalProgression
+            .toStream()
+            .selectKey((key, value) -> value.getServiceUserId())
+            .join(usersWithAccess, Pair::of);
+    initialGoalProgressionEventsWithAccess.selectKey((key, goalEvent) -> goalEvent.left.getServiceUserId())
+            .groupByKey()
+            .count(Materialized.as(GOALS_PROGRESSED_PER_USER_T1));
 
     KTable<GoalId, GoalEventWrapped> firstProgressionStep = stepCountedGoalProgression.filter((key, value) -> value.getGoalProgressionSteps() == 1);
     KTable<GoalId, GoalEventWrapped> firstProgressionStepSignificant = stepCountedGoalProgression.filter((key, value) -> value.isAtSignificantStep());
