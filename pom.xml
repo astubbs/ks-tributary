@@ -12,7 +12,8 @@
 
     <modules>
         <module>streams-module</module>
-        <module>streams-main-dagger</module>
+        <!-- TODO disable until https://github.com/google/dagger/issues/442#issuecomment-621183870 resolved -->
+        <!-- <module>streams-main-dagger</module> -->
     </modules>
 
     <properties>
