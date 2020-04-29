@@ -132,6 +132,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.4</version>
+                <configuration>
+                    <excludes>
+                        <!-- exclude dagger generated files -->
+                        <exclude>**/*_MembersInjector.class</exclude>
+                        <exclude>**/*_Factory.class</exclude>
+                        <exclude>**/Dagger*Component*.class</exclude>
+                        <exclude>**/Dagger*Subcomponent*.class</exclude>
+                        <exclude>**/*Subcomponent$Builder.class</exclude>
+                        <exclude>**/*Module_*Factory.class</exclude>
+                        <exclude>**/*_Factory.class</exclude>
+                        <!-- exclude avro -->
+                        <exclude>**/model/avro/**/*.class</exclude>
+                        <exclude>**/model/finance/avro/**/*.class</exclude> <!-- TODO remove -->
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
