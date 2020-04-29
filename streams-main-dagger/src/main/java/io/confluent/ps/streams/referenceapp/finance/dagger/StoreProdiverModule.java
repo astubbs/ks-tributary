@@ -1,9 +1,9 @@
 package io.confluent.ps.streams.referenceapp.finance.dagger;
 
-import io.confluent.ps.streams.referenceapp.finance.topologies.KSSnapshotStoreProvider;
-import io.confluent.ps.streams.referenceapp.finance.topologies.SnapshotStoreProvider;
 import dagger.Module;
 import dagger.Provides;
+import io.confluent.ps.streams.referenceapp.finance.topologies.KSSnapshotStoreProvider;
+import io.confluent.ps.streams.referenceapp.finance.topologies.SnapshotStoreProvider;
 
 @Module
 public class StoreProdiverModule {
@@ -12,5 +12,4 @@ public class StoreProdiverModule {
   SnapshotStoreProvider stores() {
     return new KSSnapshotStoreProvider();
   }
-
 }

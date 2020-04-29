@@ -3,14 +3,13 @@ package io.confluent.ps.streams.referenceapp.finance;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.confluent.ps.streams.referenceapp.finance.modules.SnapshotModule;
+import java.util.Properties;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Properties;
 
 /**
  * Main entry class for app, uses Dagger static injection.
@@ -22,7 +21,8 @@ public class SnapshotGuiceApp {
     Injector injector = Guice.createInjector(new SnapshotModule());
 
     // starts the app
-    SnapshotAppKafkaStream instance = injector.getInstance(SnapshotAppKafkaStream.class);
+    SnapshotAppKafkaStream instance =
+        injector.getInstance(SnapshotAppKafkaStream.class);
   }
 
   public static class SnapshotAppKafkaStream {
@@ -40,8 +40,5 @@ public class SnapshotGuiceApp {
         }
       }));
     }
-
   }
-
-
 }

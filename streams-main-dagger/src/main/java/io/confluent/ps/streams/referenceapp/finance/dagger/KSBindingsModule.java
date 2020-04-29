@@ -5,9 +5,8 @@ import dagger.Module;
 @Module
 public abstract class KSBindingsModule {
 
-//  // TODO is this the right way to bind an eager singleton?
-//  @Singleton
-//  @Binds
-//  abstract StreamsBuilder bindStreamBuilder(StreamsBuilder sb);
-
+  //  // TODO is this the right way to bind an eager singleton?
+  //  @Singleton
+  //  @Binds
+  //  abstract StreamsBuilder bindStreamBuilder(StreamsBuilder sb);
 }
