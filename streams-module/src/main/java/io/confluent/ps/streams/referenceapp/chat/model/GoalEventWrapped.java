@@ -13,11 +13,11 @@ public class GoalEventWrapped extends GoalEvent {
   }
 
   public GoalEventWrapped(@Nonnull GoalEvent w) {
-    super(w.getId(), w.getTitle(), w.getScore(), w.getInitialScore(), w.getCreatedAt(), w.getServiceUserId(), w.getReviewedStatus(), w.getGoalProgressionSteps(), w.getSignificantProgressSurpassedAtStep());
+    super(w.getId(), w.getTitle(), w.getScore(), w.getInitialScore(), w.getCreatedAt(), w.getUserId(), w.getReviewedStatus(), w.getGoalProgressionSteps(), w.getSignificantProgressSurpassedAtStep());
   }
 
-  public GoalEventWrapped(GoalId id, String title, Integer score, Integer initialScore, DateTime createdAt, ServiceUserId serviceUserId, ReviewedStatus reviewedStatus) {
-    super(id, title, score, initialScore, createdAt, serviceUserId, reviewedStatus, 0, 0);
+  public GoalEventWrapped(GoalId id, String title, Integer score, Integer initialScore, DateTime createdAt, UserId userId, ReviewedStatus reviewedStatus) {
+    super(id, title, score, initialScore, createdAt, userId, reviewedStatus, 0, 0);
   }
 
   public boolean hasMadeProgress() {

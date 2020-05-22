@@ -49,24 +49,24 @@ public class ChatKpiTest extends GuiceInjectedTestBase {
     GoalId gIda = GoalId.newBuilder().setId("g1").build();
     GoalId gIdThree = GoalId.newBuilder().setId("g3").build();
 
-    ServiceUserId su1 = ServiceUserId.newBuilder().setId("su1").build();
+    UserId su1 = UserId.newBuilder().setId("su1").build();
     GoalEventWrapped gEvent = newGoal(gIda, su1);
 
     GoalId gIdb = GoalId.newBuilder().setId("g2").build();
-    ServiceUserId su2 = ServiceUserId.newBuilder().setId("su2").build();
+    UserId su2 = UserId.newBuilder().setId("su2").build();
     GoalEventWrapped gEvent2 = newGoal(gIdb, su2);
 
     goalsTopic.pipeInput(gIda, gEvent);
     goalsTopic.pipeInput(gIdb, gEvent2);
 
-    KeyValueStore<ServiceUserId, Long> progressed = td.getKeyValueStore(ChatKpiTopology.PROGRESSED_COUNT_STORE);
-    KeyValueStore<ServiceUserId, Long> veryProgressed = td.getKeyValueStore(ChatKpiTopology.VERY_PROGRESSED_COUNT_STORE);
+    KeyValueStore<UserId, Long> progressed = td.getKeyValueStore(ChatKpiTopology.PROGRESSED_COUNT_STORE);
+    KeyValueStore<UserId, Long> veryProgressed = td.getKeyValueStore(ChatKpiTopology.VERY_PROGRESSED_COUNT_STORE);
     KeyValueStore<Object, Object> progressedGoalCounts = td.getKeyValueStore(ChatKpiTopology.PROGRESSED_GOALS_STORE);
-    KeyValueStore<ServiceUserId, Long> progressedCountPerUsers = td.getKeyValueStore(ChatKpiTopology.GOALS_PROGRESSED_PER_USER_T2);
+    KeyValueStore<UserId, Long> progressedCountPerUsers = td.getKeyValueStore(ChatKpiTopology.GOALS_PROGRESSED_PER_USER_T2);
 
 
-    ArrayList<KeyValue<ServiceUserId, Long>> all = Lists.newArrayList(progressed.all());
-    ArrayList<KeyValue<ServiceUserId, Long>> allv = Lists.newArrayList(veryProgressed.all());
+    ArrayList<KeyValue<UserId, Long>> all = Lists.newArrayList(progressed.all());
+    ArrayList<KeyValue<UserId, Long>> allv = Lists.newArrayList(veryProgressed.all());
 
     // no progress
     assertThat(all).isEmpty();
@@ -115,12 +115,12 @@ public class ChatKpiTest extends GuiceInjectedTestBase {
   }
 
   @NotNull
-  private GoalEventWrapped newGoal(GoalId goalId, ServiceUserId suId) {
+  private GoalEventWrapped newGoal(GoalId goalId, UserId suId) {
     return newGoal(goalId, suId, 0);
   }
 
   @NotNull
-  private GoalEventWrapped newGoal(GoalId goalId, ServiceUserId suId, int score) {
+  private GoalEventWrapped newGoal(GoalId goalId, UserId suId, int score) {
     return new GoalEventWrapped(goalId, "my goal", 0, 0, DateTime.now(), suId, ReviewedStatus.NO);
   }
 

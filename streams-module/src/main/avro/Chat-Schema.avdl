@@ -5,7 +5,7 @@ protocol Xenzone {
     string id;
   }
 
-  record ServiceUserId {
+  record UserId {
     string id;
   }
 
@@ -19,20 +19,20 @@ protocol Xenzone {
     int score;
     int initialScore;
     timestamp_ms createdAt;
-    ServiceUserId serviceUserId;
+    UserId userId;
     ReviewedStatus reviewedStatus;
     int goalProgressionSteps;
     int significantProgressSurpassedAtStep;
   }
 
   record UserAccess {
-    ServiceUserId userId;
+    UserId userId;
     int accessCount;
     timestamp_ms accessTime;
   }
 
   record ChatMessage {
-    ServiceUserId userId;
+    UserId userId;
     timestamp_ms accessTime;
     string message;
   }
@@ -54,8 +54,8 @@ protocol Xenzone {
     string id;
     string application_id;
     string xmpp_room_id;
-    ServiceUserId participantOne;
-    ServiceUserId participantTwo;
+    UserId participantOne;
+    UserId participantTwo;
     timestamp_ms started_at;
     timestamp_ms ended_at;
     boolean active;
@@ -77,5 +77,5 @@ protocol Xenzone {
     timestamp_ms sentAt;
   }
 
-  record ServiceUser {}
+  record User {}
 }
