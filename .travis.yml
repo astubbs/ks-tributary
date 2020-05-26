@@ -20,8 +20,16 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-# Weirdly have to run maven clean, or Dagger complains: "Could not generate unknown file: Attempt to recreate a file for type" for all modules, components. Doesn't happen in Intellij.
-script: mvn clean verify
-
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+addons:
+  sonarcloud:
+    organization: "astubbs"
+    token:
+      secure: n7ce+0CNThoS7yNoCc9JexsFa5wlPJVWAwxk7CBHGepDwFNlhN+mTSXamNKfhe4TXfqejx1FbsEJqr6wBYR3WRaz7iuuI4lvdIgS2gwbuHquikigxyt8kcf99DEdXGwPtFUlSMGUJnwvYrTDU+mXKF4aR2UJGyDF6fzHQX0pxSwuADmL9r7HgvA0QNw1N1L3eRQoCT3hzjtNOJC0/0B4Na24RTDdt78a8n/qDifMhHxo6ifqDkEE9iRwcZRpmOvJ7HsJwQBIi+gzoIU+C+24AIAMkLY7uHCnI3B7wmEBimOSpyJycAaKa8lAXLN9YzH+a53aJld8Tz63f4VbVhSds4DT497kdDrKnjYgRNra3K1n4MgbVGwQ0Yu40UyoJD3rzIS+tfX5ZE3rNmkZ9oILdGXZRG+bxQJ2nHJKHLLT52JXYt0PHXzcToZXN+WZEPSX+bHJJOCjlOkbCgkVdVsaJDSUyrVOli7pyTb720CoKTJWm4OoWRV92T2rC1EpoLoQdAyRUhvP6QI2KXlHCBjEUg/+w7CaSLSQbNjaZ5AGh4qulmueqxRJ7mQ52qXdhwykxj0FIg/gnAxSCeAANVlLggXiiYVsmWwwgTbwvX5KvFzGeSW+lYzN/u36VfBR4/vv11AcwiE/Gh5oMcfPjkjMAPyw5cP5ViQslBokkmhCcl4=
+
+script:
+  # Weirdly have to run maven clean, or Dagger complains: "Could not generate unknown file: Attempt to recreate a file for type" for all modules, components. Doesn't happen in Intellij.
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=astubbs_ks-tributary
