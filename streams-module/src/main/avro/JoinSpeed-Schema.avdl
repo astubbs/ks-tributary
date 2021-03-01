@@ -1,0 +1,52 @@
+@namespace("io.confluent.ps.streams.referenceapp.joinspeed.model")
+protocol Joinspeed {
+
+  record UserId {
+    string id;
+  }
+
+  record TeamId {
+    string id;
+  }
+
+  record DeviceToken {
+    string deviceToken;
+  }
+
+  record EventId {
+    string id;
+  }
+
+  record Event {
+    EventId id;
+    TeamId teamId;
+    string eventDesc;
+  }
+
+  record TeamFollowers {
+    TeamId teamId;
+    array<UserId> users = [];
+  }
+
+  record EventFollowersBatch {
+    TeamId teamId;
+    array<UserId> users = [];
+  }
+
+  record EventFollower {
+    TeamId teamId;
+    UserId userId;
+  }
+
+  record UserDeviceToken {
+    UserId userId;
+    DeviceToken token;
+  }
+
+  record EventFollowerDevice {
+    TeamId teamId;
+    UserId userId;
+    DeviceToken token;
+  }
+
+}
