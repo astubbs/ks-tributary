@@ -43,6 +43,16 @@ protocol Joinspeed {
     DeviceToken token;
   }
 
+  record UserDeviceTokenRegistry {
+    array<DeviceToken> tokens;
+  }
+
+  record EventFollowerDeviceAggregate {
+    TeamId teamId;
+    UserId userId;
+    array<DeviceToken> tokens;
+  }
+
   record EventFollowerDevice {
     TeamId teamId;
     UserId userId;
