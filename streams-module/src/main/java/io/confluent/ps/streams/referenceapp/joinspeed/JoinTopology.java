@@ -48,7 +48,9 @@ public class JoinTopology {
         rekeyedToUsers.to(USER_EVENTS);
 
         // aggregate all user device tokens
-        KTable<UserId, UserDeviceTokenRegistry> userDeviceTokensTable = builder.<UserId, DeviceToken>stream(DEVICE_TOKENS).groupByKey().aggregate(
+        KTable<UserId, UserDeviceTokenRegistry> userDeviceTokensTable = builder.<UserId, DeviceToken>stream(DEVICE_TOKENS)
+                .groupByKey()
+                .aggregate(
                 () -> {
                     UserDeviceTokenRegistry userDeviceTokenRegistry = new UserDeviceTokenRegistry();
                     userDeviceTokenRegistry.setTokens(new ArrayList<>());
@@ -58,6 +60,10 @@ public class JoinTopology {
                     agg.getTokens().add(additional);
                     return agg;
                 }, Materialized.as(USER_DEVICE_TOKEN_STORE));
+
+        // publish derived KTable for global KTable (no need to materialise the above in this case)
+        userDeviceTokensTable.toStream().to(USER_DEVICE_TOKEN_STORE+"-global");
+        String storeName = builder.globalTable("", Materialized.as(USER_DEVICE_TOKEN_STORE + "-global-store")).queryableStoreName();
 
         // join user events to device tokens
         KStream<UserId, EventFollowerDevice> joinTokens = rekeyedToUsers.join(userDeviceTokensTable,

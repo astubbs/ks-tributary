@@ -5,17 +5,15 @@ import com.github.jukkakarvanen.kafka.streams.test.TestOutputTopic;
 import com.github.jukkakarvanen.kafka.streams.test.TopologyTestDriver;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
-//import io.confluent.parallelconsumer.ParallelConsumer;
-//import io.confluent.parallelconsumer.ParallelEoSStreamProcessor;
 import io.confluent.ps.streams.referenceapp.finance.topologies.SnapshotTopologyParent;
 import io.confluent.ps.streams.referenceapp.joinspeed.model.*;
 import io.confluent.ps.streams.referenceapp.utils.KSUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
-import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.assertj.core.presentation.StandardRepresentation;
 import org.junit.jupiter.api.Test;
@@ -26,10 +24,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import static io.confluent.ps.streams.referenceapp.joinspeed.JoinTopology.USER_DEVICE_TOKEN_STORE;
+import static io.confluent.ps.streams.referenceapp.joinspeed.JoinTopologyV2.TEAM_SHARDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class JoinSpeedTest {
+public class JoinSpeedTestV2 {
 
     final String SCHEMA_REGISTRY_SCOPE = SnapshotTopologyParent.class.getName();
     final String MOCK_SCHEMA_REGISTRY_URL = "mock://" + SCHEMA_REGISTRY_SCOPE;
@@ -38,7 +37,7 @@ public class JoinSpeedTest {
     @Test
     void testBasics() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
-        new JoinTopology(streamsBuilder);
+        new JoinTopologyV2(streamsBuilder);
         KSUtils ksUtils = new KSUtils();
 
         Properties config = new Properties();
@@ -49,6 +48,9 @@ public class JoinSpeedTest {
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, SpecificAvroSerde.class.getName());
 
         try (TopologyTestDriver ttd = new TopologyTestDriver(streamsBuilder.build(), config);) {
+
+            TestInputTopic<UserId, TeamId> userFollowsTeamEvents = ttd.createInputTopic(JoinTopologyV2.USER_FOLLOWS_TEAM_EVENT,
+                    ksUtils.<UserId>serdeFor(true).serializer(), ksUtils.<TeamId>serdeFor().serializer());
 
             TestInputTopic<TeamId, TeamFollowers> teamFollowers = ttd.createInputTopic(JoinTopology.TEAM_FOLLOWERS,
                     ksUtils.<TeamId>serdeFor(true).serializer(), ksUtils.<TeamFollowers>serdeFor().serializer());
@@ -69,7 +71,10 @@ public class JoinSpeedTest {
 
             UserId u4 = new UserId("u4"); // multi device user
 
-            teamFollowers.pipeInput(t1, new TeamFollowers(t1, List.of(u1, u2, u3, u4)));
+            userFollowsTeamEvents.pipeInput(u1, t1);
+            userFollowsTeamEvents.pipeInput(u2, t1);
+            userFollowsTeamEvents.pipeInput(u3, t1);
+            userFollowsTeamEvents.pipeInput(u4, t1);
 
             DeviceToken device1 = new DeviceToken("device1");
             DeviceToken device2 = new DeviceToken("device2");
@@ -103,46 +108,12 @@ public class JoinSpeedTest {
 
             // DEMO query of state store
             KeyValueStore devices = ttd.getKeyValueStore(USER_DEVICE_TOKEN_STORE);
+            KeyValueStore teamShards = ttd.getKeyValueStore(TEAM_SHARDS);
+            teamShards.all().forEachRemaining(x -> log.info(new StandardRepresentation().toStringOf(x)));
 //            new ParallelJoin(devices, new ParallelEoSStreamProcessor<>(null)); // needs options setup
 
         }
 
-    }
-
-    /**
-     * PC Join Demo - stream of events
-     */
-    class ParallelJoin {
-
-        /**
-         * Needs KeyValueStore injected.
-         *
-         * E.g. KeyValueStore devices = ttd.getKeyValueStore(USER_DEVICE_TOKEN_STORE);
-         */
-//        ParallelJoin(KeyValueStore<UserId, UserDeviceTokenRegistry> store, ParallelConsumer<UserId, EventFollower> pc) {
-//            pc.poll(record -> {
-//                UserId userId = record.key();
-//                EventFollower value = record.value();
-//
-//                UserDeviceTokenRegistry userDeviceTokenRegistry = store.get(userId);
-//                if (userDeviceTokenRegistry != null) {
-//                    // join hit
-//                    // create payload with even details and call third party system, or produce a result message
-//                    value.getTeamId();
-//                    //....
-//                } else {
-//                    // join miss
-//                    // drop - not registered devices for that user
-//                }
-//            });
-//        }
-
-    }
-
-    public <T extends SpecificRecord> SpecificAvroSerde<T> serdeFor(boolean isKey) {
-        SpecificAvroSerde<T> tSpecifivAvroSerde = new SpecificAvroSerde<T>();
-        tSpecifivAvroSerde.configure(serdeConfig, isKey);
-        return tSpecifivAvroSerde;
     }
 
 }

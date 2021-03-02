@@ -2,11 +2,11 @@
 protocol Joinspeed {
 
   record UserId {
-    string id;
+    string userId;
   }
 
   record TeamId {
-    string id;
+    string teamId;
   }
 
   record DeviceToken {
@@ -14,13 +14,18 @@ protocol Joinspeed {
   }
 
   record EventId {
-    string id;
+    string eventId;
   }
 
   record Event {
     EventId id;
     TeamId teamId;
     string eventDesc;
+  }
+
+  record TeamFollowerShardKey {
+    TeamId teamId;
+    int shardNumber;
   }
 
   record TeamFollowers {
