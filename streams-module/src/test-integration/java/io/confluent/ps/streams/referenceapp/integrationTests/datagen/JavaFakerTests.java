@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class JavaFakerTests {
   @Disabled("Needs to be changed to look inside the dep jar, not an extracted file")
   @Test
   public void countFromYaml() {
-    Yaml yaml = new Yaml();
+    Yaml yaml = new Yaml(new SafeConstructor());
     Files.fileTraverser().breadthFirst(new File("java-faker/src/main/resources")).forEach(x -> {
       if (x.isDirectory()) return; //skip
       else {
