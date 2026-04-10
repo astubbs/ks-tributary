@@ -204,7 +204,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/main/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -217,7 +216,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/test/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>

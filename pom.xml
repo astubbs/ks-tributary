@@ -25,7 +25,7 @@
         <confluent.version>5.3.1</confluent.version>
         <junit.version>5.5.2</junit.version>
         <junit.platform.version>1.5.2</junit.platform.version>
-        <!-- CP stuck on this, TODO upgrade to 1.9.x when CP does -->
+        <!-- Pinned to match Confluent Platform ${confluent.version} serde compatibility -->
         <avro.version>1.8.1</avro.version>
         <lombok.version>1.18.10</lombok.version>
         <dagger.version>2.24</dagger.version>
@@ -87,7 +87,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/main/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -100,7 +99,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/test/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -150,7 +148,6 @@
                         <exclude>**/*_Factory.class</exclude>
                         <!-- exclude avro -->
                         <exclude>**/model/avro/**/*.class</exclude>
-                        <exclude>**/model/finance/avro/**/*.class</exclude> <!-- TODO remove -->
                     </excludes>
                 </configuration>
                 <executions>
