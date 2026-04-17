@@ -20,7 +20,6 @@
         <!--            <version>${avro.version}</version>-->
         <!--        </dependency>-->
 
-        <!-- use temporarily until AK 2.4 is released -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
@@ -204,7 +203,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/main/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -217,7 +215,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/test/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>

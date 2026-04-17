@@ -25,9 +25,9 @@
         <confluent.version>5.3.1</confluent.version>
         <junit.version>5.5.2</junit.version>
         <junit.platform.version>1.5.2</junit.platform.version>
-        <!-- CP stuck on this, TODO upgrade to 1.9.x when CP does -->
+        <!-- Pinned to match Confluent Platform ${confluent.version} serde compatibility -->
         <avro.version>1.8.1</avro.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.34</lombok.version>
         <dagger.version>2.24</dagger.version>
         <maven.version>2.22.2</maven.version>
         <testcontainers.version>1.12.1</testcontainers.version>
@@ -45,6 +45,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.version}</version>
                 <configuration>
+                    <!-- JDK 16+ module system blocks Guice 4.x cglib internals -->
+                    <argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <excludes>
                         <!-- <exclude>**/*integration*/**/*.java</exclude> too aggressive? -->
                         <exclude>**/integrationTests/**/*.java</exclude>
@@ -87,7 +89,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/main/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -100,7 +101,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/test/scala</source>
                                 <source>${project.build.directory}/generated-sources</source>
                             </sources>
                         </configuration>
@@ -137,7 +137,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.4</version>
+                <version>0.8.12</version>
                 <configuration>
                     <excludes>
                         <!-- exclude dagger generated files -->
@@ -150,7 +150,6 @@
                         <exclude>**/*_Factory.class</exclude>
                         <!-- exclude avro -->
                         <exclude>**/model/avro/**/*.class</exclude>
-                        <exclude>**/model/finance/avro/**/*.class</exclude> <!-- TODO remove -->
                     </excludes>
                 </configuration>
                 <executions>
@@ -168,12 +167,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.8.6.0</version>
+                <configuration>
+                    <includeTests>false</includeTests>
+                    <effort>Max</effort>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.17.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>io.confluent.ps.streams.referenceapp.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>io.confluent.ps.streams.referenceapp.*</param>
+                    </targetTests>
+                    <outputFormats>
+                        <outputFormat>HTML</outputFormat>
+                        <outputFormat>XML</outputFormat>
+                        <outputFormat>CSV</outputFormat>
+                    </outputFormats>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <dependencyManagement>
         <dependencies>
-            <!-- use temporarily until AK 2.4 is released -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
